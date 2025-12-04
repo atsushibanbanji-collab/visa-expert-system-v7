@@ -1,7 +1,7 @@
 services:
   # Backend - FastAPI
   - type: web
-    name: visa-expert-backend
+    name: visa-expert-backend-v7
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
@@ -19,6 +19,6 @@ services:
     startCommand: npx serve -s build -l $PORT
     envVars:
       - key: REACT_APP_API_URL
-        value: https://visa-expert-backend.onrender.com
+        value: https://visa-expert-backend-v7.onrender.com
       - key: NODE_VERSION
         value: 18.18.0
