@@ -10,13 +10,15 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.0
 
-  # Frontend - React
+  # Frontend - React (Static Site)
   - type: web
     name: visa-expert-frontend
-    runtime: static
+    runtime: node
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: build
+    startCommand: npx serve -s build -l $PORT
     envVars:
       - key: REACT_APP_API_URL
         value: https://visa-expert-backend.onrender.com
+      - key: NODE_VERSION
+        value: 18.18.0
