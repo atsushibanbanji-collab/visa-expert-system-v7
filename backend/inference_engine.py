@@ -284,8 +284,8 @@ class InferenceEngine:
             return None
         visited.add(rule.id)
 
-        # ルールがブロック/uncertainされていたらスキップ
-        if self.rule_states[rule.id].status in ["blocked", "uncertain"]:
+        # ルールがブロックされていたらスキップ（uncertainは質問を続ける）
+        if self.rule_states[rule.id].status == "blocked":
             return None
 
         for cond in rule.conditions:
@@ -302,8 +302,8 @@ class InferenceEngine:
                 # 導出ルールを探す
                 deriving_rules = [r for r in self.rules if r.action == cond]
                 for dr in deriving_rules:
-                    # 導出ルールがブロック/uncertainされていなければ再帰探索
-                    if self.rule_states[dr.id].status not in ["blocked", "uncertain"]:
+                    # 導出ルールがブロックされていなければ再帰探索（uncertainでも続ける）
+                    if self.rule_states[dr.id].status != "blocked":
                         sub_question = self._find_next_question_for_rule(dr, visited.copy())
                         if sub_question:
                             return sub_question
@@ -681,13 +681,21 @@ class InferenceEngine:
                     # FALSEがあればブロック
                     state.status = "blocked"
                 elif has_unknown:
-                    # UNKNOWNがある場合、このルールがゴールルールかどうかで判定を分ける
-                    # 非ゴールルール（導出ルール）はUNKNOWNでuncertain
-                    # ゴールルールは後続条件を聞く価値があるのでブロックしない
-                    goal_rules = get_goal_rules()
-                    is_goal_rule = rule.id in [gr.id for gr in goal_rules]
-                    if not is_goal_rule:
+                    # UNKNOWNがある場合でも、全条件を質問してから判定する
+                    # 「わからない」は「いいえ」ではなく「保留（はい寄り）」
+                    # 最終的に「この条件を満たせば申請できます」と顧客に伝えるため
+                    # 全条件が回答済みかチェック
+                    all_answered = True
+                    for cond in rule.conditions:
+                        val = self._get_effective_value(cond)
+                        if val is None or val == FactStatus.PENDING:
+                            all_answered = False
+                            break
+
+                    if all_answered:
+                        # 全条件回答済みでUNKNOWNあり → uncertain
                         state.status = "uncertain"
+                    # まだ未回答条件があれば、evaluating状態を維持（質問を続ける）
 
     def _propagate_inferences(self):
         """発火したルールから仮説を導出"""
