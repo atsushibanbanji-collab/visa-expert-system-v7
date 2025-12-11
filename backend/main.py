@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Any
 import json
 
 from inference_engine import InferenceEngine
-from knowledge_base import get_all_rules, get_goal_rules, VISA_RULES
+from knowledge_base import get_all_rules, get_goal_rules, VISA_RULES, save_rules, reload_rules, RuleType
 
 app = FastAPI(
     title="ビザ選定エキスパートシステム",
@@ -41,6 +41,16 @@ class AnswerRequest(BaseModel):
 class GoBackRequest(BaseModel):
     session_id: str
     steps: int = 1
+
+
+class RuleRequest(BaseModel):
+    id: str
+    name: str
+    conditions: List[str]
+    action: str
+    is_or_rule: bool = False
+    visa_type: str = ""
+    rule_type: str = "i"  # "i" for INITIAL, "m" for MIDDLE
 
 
 @app.get("/")
@@ -264,6 +274,170 @@ async def validate_rules(visa_type: Optional[str] = None):
         return {"status": "ok", "message": "問題ありません"}
 
     return {"status": "issues_found", "issues": issues}
+
+
+
+
+# ========== ルール管理 CRUD ==========
+
+@app.post("/api/rules")
+async def create_rule(rule: RuleRequest):
+    """新しいルールを作成"""
+    # 既存ルールと重複チェック
+    for r in VISA_RULES:
+        if r.id == rule.id:
+            raise HTTPException(status_code=400, detail=f"Rule with ID {rule.id} already exists")
+
+    # 現在のルールをJSONとして取得
+    rules_data = {
+        "rules": [
+            {
+                "id": r.id,
+                "name": r.name,
+                "conditions": r.conditions,
+                "action": r.action,
+                "is_or_rule": r.is_or_rule,
+                "visa_type": r.visa_type,
+                "rule_type": r.rule_type.value
+            }
+            for r in VISA_RULES
+        ],
+        "goal_actions": [
+            "Eビザでの申請ができます",
+            "Blanket Lビザでの申請ができます",
+            "Lビザ（Individual）での申請ができます",
+            "Bビザの申請ができます",
+            "契約書に基づくBビザの申請ができます",
+            "B-1 in lieu of H-1Bビザの申請ができます",
+            "B-1 in lieu of H3ビザの申請ができます",
+            "H-1Bビザでの申請ができます",
+            "J-1ビザの申請ができます",
+        ]
+    }
+
+    # 新しいルールを追加
+    rules_data["rules"].append({
+        "id": rule.id,
+        "name": rule.name,
+        "conditions": rule.conditions,
+        "action": rule.action,
+        "is_or_rule": rule.is_or_rule,
+        "visa_type": rule.visa_type,
+        "rule_type": rule.rule_type
+    })
+
+    if save_rules(rules_data):
+        return {"status": "created", "rule_id": rule.id}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to save rule")
+
+
+@app.put("/api/rules/{rule_id}")
+async def update_rule(rule_id: str, rule: RuleRequest):
+    """既存ルールを更新"""
+    found = False
+    for r in VISA_RULES:
+        if r.id == rule_id:
+            found = True
+            break
+
+    if not found:
+        raise HTTPException(status_code=404, detail="Rule not found")
+
+    # 現在のルールをJSONとして取得（更新対象を除外）
+    rules_data = {
+        "rules": [
+            {
+                "id": r.id,
+                "name": r.name,
+                "conditions": r.conditions,
+                "action": r.action,
+                "is_or_rule": r.is_or_rule,
+                "visa_type": r.visa_type,
+                "rule_type": r.rule_type.value
+            }
+            for r in VISA_RULES if r.id != rule_id
+        ],
+        "goal_actions": [
+            "Eビザでの申請ができます",
+            "Blanket Lビザでの申請ができます",
+            "Lビザ（Individual）での申請ができます",
+            "Bビザの申請ができます",
+            "契約書に基づくBビザの申請ができます",
+            "B-1 in lieu of H-1Bビザの申請ができます",
+            "B-1 in lieu of H3ビザの申請ができます",
+            "H-1Bビザでの申請ができます",
+            "J-1ビザの申請ができます",
+        ]
+    }
+
+    # 更新されたルールを追加
+    rules_data["rules"].append({
+        "id": rule.id,
+        "name": rule.name,
+        "conditions": rule.conditions,
+        "action": rule.action,
+        "is_or_rule": rule.is_or_rule,
+        "visa_type": rule.visa_type,
+        "rule_type": rule.rule_type
+    })
+
+    if save_rules(rules_data):
+        return {"status": "updated", "rule_id": rule.id}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to save rule")
+
+
+@app.delete("/api/rules/{rule_id}")
+async def delete_rule(rule_id: str):
+    """ルールを削除"""
+    found = False
+    for r in VISA_RULES:
+        if r.id == rule_id:
+            found = True
+            break
+
+    if not found:
+        raise HTTPException(status_code=404, detail="Rule not found")
+
+    # 現在のルールをJSONとして取得（削除対象を除外）
+    rules_data = {
+        "rules": [
+            {
+                "id": r.id,
+                "name": r.name,
+                "conditions": r.conditions,
+                "action": r.action,
+                "is_or_rule": r.is_or_rule,
+                "visa_type": r.visa_type,
+                "rule_type": r.rule_type.value
+            }
+            for r in VISA_RULES if r.id != rule_id
+        ],
+        "goal_actions": [
+            "Eビザでの申請ができます",
+            "Blanket Lビザでの申請ができます",
+            "Lビザ（Individual）での申請ができます",
+            "Bビザの申請ができます",
+            "契約書に基づくBビザの申請ができます",
+            "B-1 in lieu of H-1Bビザの申請ができます",
+            "B-1 in lieu of H3ビザの申請ができます",
+            "H-1Bビザでの申請ができます",
+            "J-1ビザの申請ができます",
+        ]
+    }
+
+    if save_rules(rules_data):
+        return {"status": "deleted", "rule_id": rule_id}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete rule")
+
+
+@app.post("/api/rules/reload")
+async def reload_all_rules():
+    """ルールをJSONファイルから再読み込み"""
+    reload_rules()
+    return {"status": "reloaded", "count": len(VISA_RULES)}
 
 
 if __name__ == "__main__":

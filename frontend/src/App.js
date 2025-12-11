@@ -1,9 +1,71 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
+import './Admin.css';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 function App() {
+  const [currentPage, setCurrentPage] = useState('home'); // 'home', 'consultation', 'admin'
+
+  return (
+    <div className="app">
+      <header className="header">
+        <h1>ビザ選定エキスパートシステム</h1>
+        <div className="header-actions">
+          <button
+            className={`header-button ${currentPage === 'home' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('home')}
+          >
+            ホーム
+          </button>
+          <button
+            className={`header-button ${currentPage === 'admin' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('admin')}
+          >
+            ルール管理
+          </button>
+        </div>
+      </header>
+
+      {currentPage === 'home' && <HomePage onStartConsultation={() => setCurrentPage('consultation')} />}
+      {currentPage === 'consultation' && <ConsultationPage onBack={() => setCurrentPage('home')} />}
+      {currentPage === 'admin' && <AdminPage />}
+    </div>
+  );
+}
+
+// ホームページ
+function HomePage({ onStartConsultation }) {
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <div className="welcome-screen">
+      <div className="welcome-content">
+        <p className="subtitle">専門知識に基づくビザ選定支援</p>
+        <div className="feature-list">
+          <div className="feature-item">
+            <span className="feature-icon">&#x2713;</span>
+            <span>E・L・B・H-1B・J-1ビザを同時診断</span>
+          </div>
+          <div className="feature-item">
+            <span className="feature-icon">&#x2713;</span>
+            <span>バックワードチェイニングによる効率的な推論</span>
+          </div>
+          <div className="feature-item">
+            <span className="feature-icon">&#x2713;</span>
+            <span>推論過程のリアルタイム可視化</span>
+          </div>
+        </div>
+        <button className="start-button" onClick={onStartConsultation} disabled={loading}>
+          {loading ? '読み込み中...' : '診断を開始する'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// 診断ページ
+function ConsultationPage({ onBack }) {
   const [sessionId] = useState(() => `session_${Date.now()}`);
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [relatedVisaTypes, setRelatedVisaTypes] = useState([]);
@@ -17,8 +79,6 @@ function App() {
 
   const startConsultation = async () => {
     setLoading(true);
-    console.log('=== 診断開始 ===');
-    console.log('Session ID:', sessionId);
     try {
       const response = await fetch(`${API_BASE}/api/consultation/start`, {
         method: 'POST',
@@ -26,10 +86,6 @@ function App() {
         body: JSON.stringify({ session_id: sessionId })
       });
       const data = await response.json();
-      console.log('開始レスポンス:', data);
-      console.log('最初の質問:', data.current_question);
-      console.log('関連ビザタイプ:', data.related_visa_types);
-      console.log('ルール数:', data.rules_status?.length);
       setCurrentQuestion(data.current_question);
       setRelatedVisaTypes(data.related_visa_types || []);
       setRulesStatus(data.rules_status || []);
@@ -40,46 +96,27 @@ function App() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    startConsultation();
+  }, []);
+
   const answerQuestion = async (answer) => {
-    // ボタン連打対策：すでにローディング中なら何もしない
     if (loading) return;
-
     setLoading(true);
-    console.log('=== 回答 ===');
-    console.log('質問:', currentQuestion);
-    console.log('回答:', answer);
     try {
-      // 回答履歴に追加
       setAnsweredQuestions(prev => [...prev, { question: currentQuestion, answer }]);
-
       const response = await fetch(`${API_BASE}/api/consultation/answer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session_id: sessionId, answer })
       });
       const data = await response.json();
-      console.log('回答レスポンス:', data);
-      console.log('次の質問:', data.current_question);
-      console.log('完了フラグ:', data.is_complete);
-      console.log('導出された事実:', data.derived_facts);
-
-      // ルールステータスの詳細
-      const firedRules = data.rules_status?.filter(r => r.status === 'fired') || [];
-      const blockedRules = data.rules_status?.filter(r => r.status === 'blocked') || [];
-      const evaluatingRules = data.rules_status?.filter(r => r.status === 'evaluating') || [];
-      console.log('発火ルール:', firedRules.map(r => r.id));
-      console.log('ブロックルール:', blockedRules.map(r => r.id));
-      console.log('評価中ルール:', evaluatingRules.map(r => r.id));
-
       setCurrentQuestion(data.current_question);
       setRelatedVisaTypes(data.related_visa_types || []);
       setRulesStatus(data.rules_status || []);
       setDerivedFacts(data.derived_facts || []);
       setIsComplete(data.is_complete);
-
       if (data.is_complete && data.diagnosis_result) {
-        console.log('=== 診断結果 ===');
-        console.log('結果:', data.diagnosis_result);
         setDiagnosisResult(data.diagnosis_result);
       }
     } catch (error) {
@@ -89,11 +126,8 @@ function App() {
   };
 
   const goBack = async () => {
-    // ボタン連打対策：すでにローディング中なら何もしない
     if (loading) return;
-
     setLoading(true);
-    console.log('=== 戻る ===');
     try {
       const response = await fetch(`${API_BASE}/api/consultation/back`, {
         method: 'POST',
@@ -101,10 +135,6 @@ function App() {
         body: JSON.stringify({ session_id: sessionId, steps: 1 })
       });
       const data = await response.json();
-      console.log('戻るレスポンス:', data);
-      console.log('現在の質問:', data.current_question);
-      console.log('回答履歴:', data.answered_questions);
-
       setCurrentQuestion(data.current_question);
       setRelatedVisaTypes(data.related_visa_types || []);
       setRulesStatus(data.rules_status || []);
@@ -120,156 +150,67 @@ function App() {
     setLoading(false);
   };
 
-  const restart = () => {
-    // トップページに戻る
-    setStarted(false);
-    setCurrentQuestion(null);
-    setRelatedVisaTypes([]);
-    setRulesStatus([]);
-    setAnsweredQuestions([]);
-    setDerivedFacts([]);
-    setIsComplete(false);
-    setDiagnosisResult(null);
-  };
+  return (
+    <main className="main-content">
+      <div className="consultation-panel">
+        <div className="panel-header">
+          <h2>診断</h2>
+          <span className="question-count">質問 {answeredQuestions.length + 1}</span>
+        </div>
 
-  if (!started) {
-    return (
-      <div className="app">
-        <header className="header">
-          <h1>ビザ選定エキスパートシステム</h1>
-        </header>
-        <div className="welcome-screen">
-          <div className="welcome-content">
-            <p className="subtitle">専門知識に基づくビザ選定支援</p>
-            <div className="feature-list">
-              <div className="feature-item">
-                <span className="feature-icon">&#x2713;</span>
-                <span>E・L・B・H-1B・J-1ビザを同時診断</span>
+        {isComplete ? (
+          <DiagnosisResult result={diagnosisResult} />
+        ) : (
+          <>
+            {currentQuestion && (
+              <div className="question-section">
+                <div className="current-question">
+                  <div className="visa-tags">
+                    {relatedVisaTypes.map(vt => (
+                      <span key={vt} className={`visa-tag visa-${vt.replace('-', '')}`}>{vt}</span>
+                    ))}
+                  </div>
+                  <p className="question-text">{currentQuestion}</p>
+                </div>
+                <div className="answer-buttons">
+                  <button className="answer-button yes" onClick={() => answerQuestion('yes')} disabled={loading}>はい</button>
+                  <button className="answer-button no" onClick={() => answerQuestion('no')} disabled={loading}>いいえ</button>
+                  <button className="answer-button unknown" onClick={() => answerQuestion('unknown')} disabled={loading}>わからない</button>
+                </div>
+                <div className="navigation-buttons">
+                  <button className="nav-button" onClick={goBack} disabled={loading || answeredQuestions.length === 0}>
+                    &#x2190; 前の質問に戻る
+                  </button>
+                  <button className="nav-button" onClick={onBack}>最初から</button>
+                </div>
               </div>
-              <div className="feature-item">
-                <span className="feature-icon">&#x2713;</span>
-                <span>バックワードチェイニングによる効率的な推論</span>
+            )}
+          </>
+        )}
+      </div>
+
+      <div className="visualization-panel">
+        <div className="panel-header">
+          <h2>推論過程</h2>
+        </div>
+        <div className="rules-container">
+          {['E', 'L', 'B', 'H-1B', 'J-1'].map(visaType => {
+            const visaRules = rulesStatus.filter(r => r.visa_type === visaType && r.status !== 'pending');
+            if (visaRules.length === 0) return null;
+            return (
+              <div key={visaType} className={`visa-section visa-section-${visaType.replace('-', '')}`}>
+                <h3 className="visa-section-title">{visaType}ビザ</h3>
+                {visaRules.map(rule => <RuleCard key={rule.id} rule={rule} />)}
               </div>
-              <div className="feature-item">
-                <span className="feature-icon">&#x2713;</span>
-                <span>推論過程のリアルタイム可視化</span>
-              </div>
-            </div>
-            <button className="start-button" onClick={startConsultation} disabled={loading}>
-              {loading ? '読み込み中...' : '診断を開始する'}
-            </button>
-          </div>
+            );
+          })}
         </div>
       </div>
-    );
-  }
-
-  return (
-    <div className="app">
-      <header className="header">
-        <h1>ビザ選定エキスパートシステム</h1>
-        <div className="header-actions">
-          <button className="header-button" onClick={restart}>最初から</button>
-        </div>
-      </header>
-
-      <main className="main-content">
-        {/* 左側：診断画面 */}
-        <div className="consultation-panel">
-          <div className="panel-header">
-            <h2>診断</h2>
-            <span className="question-count">
-              質問 {answeredQuestions.length + 1}
-            </span>
-          </div>
-
-          {isComplete ? (
-            <DiagnosisResult result={diagnosisResult} />
-          ) : (
-            <>
-              {/* 現在の質問 */}
-              {currentQuestion && (
-                <div className="question-section">
-                  <div className="current-question">
-                    <div className="visa-tags">
-                      {relatedVisaTypes.map(vt => (
-                        <span key={vt} className={`visa-tag visa-${vt.replace('-', '')}`}>{vt}</span>
-                      ))}
-                    </div>
-                    <p className="question-text">{currentQuestion}</p>
-                  </div>
-
-                  <div className="answer-buttons">
-                    <button
-                      className="answer-button yes"
-                      onClick={() => answerQuestion('yes')}
-                      disabled={loading}
-                    >
-                      はい
-                    </button>
-                    <button
-                      className="answer-button no"
-                      onClick={() => answerQuestion('no')}
-                      disabled={loading}
-                    >
-                      いいえ
-                    </button>
-                    <button
-                      className="answer-button unknown"
-                      onClick={() => answerQuestion('unknown')}
-                      disabled={loading}
-                    >
-                      わからない
-                    </button>
-                  </div>
-
-                  <div className="navigation-buttons">
-                    <button
-                      className="nav-button"
-                      onClick={goBack}
-                      disabled={loading || answeredQuestions.length === 0}
-                    >
-                      &#x2190; 前の質問に戻る
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* 右側：推論過程可視化 */}
-        <div className="visualization-panel">
-          <div className="panel-header">
-            <h2>推論過程</h2>
-          </div>
-
-          <div className="rules-container">
-            {/* ビザタイプ別にグループ化（評価中・評価済みのルールのみ表示） */}
-            {['E', 'L', 'B', 'H-1B', 'J-1'].map(visaType => {
-              // pending以外（evaluating, fired, blocked, uncertain）のルールのみ表示
-              const visaRules = rulesStatus.filter(r =>
-                r.visa_type === visaType && r.status !== 'pending'
-              );
-              if (visaRules.length === 0) return null;
-
-              return (
-                <div key={visaType} className={`visa-section visa-section-${visaType.replace('-', '')}`}>
-                  <h3 className="visa-section-title">{visaType}ビザ</h3>
-                  {visaRules.map(rule => (
-                    <RuleCard key={rule.id} rule={rule} />
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-
-        </div>
-      </main>
-    </div>
+    </main>
   );
 }
 
+// ルールカード
 function RuleCard({ rule }) {
   const getStatusClass = (status) => {
     switch (status) {
@@ -302,7 +243,6 @@ function RuleCard({ rule }) {
           {rule.status === 'fired' ? '発火' : rule.status === 'blocked' ? '不可' : rule.status === 'uncertain' ? '不明' : '評価中'}
         </span>
       </div>
-
       <div className="rule-conditions">
         <span className="conditions-label">IF</span>
         <div className="conditions-list">
@@ -312,31 +252,25 @@ function RuleCard({ rule }) {
                 {cond.is_derived && <span className="derived-marker">&#x25C6;</span>}
                 {cond.text}
               </div>
-              {index < rule.conditions.length - 1 && (
-                <span className="operator">{rule.operator}</span>
-              )}
+              {index < rule.conditions.length - 1 && <span className="operator">{rule.operator}</span>}
             </React.Fragment>
           ))}
         </div>
       </div>
-
       <div className="rule-conclusion">
         <span className="conclusion-label">THEN</span>
-        <span className={`conclusion-text ${rule.status === 'fired' ? 'conclusion-derived' : ''}`}>
-          {rule.conclusion}
-        </span>
+        <span className={`conclusion-text ${rule.status === 'fired' ? 'conclusion-derived' : ''}`}>{rule.conclusion}</span>
       </div>
     </div>
   );
 }
 
+// 診断結果
 function DiagnosisResult({ result }) {
   if (!result) return null;
-
   return (
     <div className="diagnosis-result">
       <h2>診断結果</h2>
-
       {result.applicable_visas?.length > 0 && (
         <div className="result-section applicable">
           <h3>&#x2713; 申請可能なビザ</h3>
@@ -350,7 +284,6 @@ function DiagnosisResult({ result }) {
           </ul>
         </div>
       )}
-
       {result.conditional_visas?.length > 0 && (
         <div className="result-section conditional">
           <h3>&#x26A0; 条件付きで申請可能なビザ</h3>
@@ -363,9 +296,7 @@ function DiagnosisResult({ result }) {
                 <div className="unknown-conditions">
                   <span>確認が必要な条件:</span>
                   <ul>
-                    {visa.unknown_conditions.map((cond, i) => (
-                      <li key={i}>{cond}</li>
-                    ))}
+                    {visa.unknown_conditions.map((cond, i) => <li key={i}>{cond}</li>)}
                   </ul>
                 </div>
               </li>
@@ -373,7 +304,6 @@ function DiagnosisResult({ result }) {
           </ul>
         </div>
       )}
-
       {(!result.applicable_visas || result.applicable_visas.length === 0) &&
        (!result.conditional_visas || result.conditional_visas.length === 0) && (
         <div className="result-section no-visa">
@@ -381,6 +311,305 @@ function DiagnosisResult({ result }) {
           <p>入力された条件では、申請可能なビザタイプが見つかりませんでした。</p>
         </div>
       )}
+    </div>
+  );
+}
+
+// 管理ページ
+function AdminPage() {
+  const [rules, setRules] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedRule, setSelectedRule] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [filterVisaType, setFilterVisaType] = useState('');
+  const [message, setMessage] = useState(null);
+
+  const fetchRules = async () => {
+    setLoading(true);
+    try {
+      const url = filterVisaType
+        ? `${API_BASE}/api/rules?visa_type=${filterVisaType}`
+        : `${API_BASE}/api/rules`;
+      const response = await fetch(url);
+      const data = await response.json();
+      setRules(data.rules || []);
+    } catch (error) {
+      console.error('Error fetching rules:', error);
+      setMessage({ type: 'error', text: 'ルールの取得に失敗しました' });
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchRules();
+  }, [filterVisaType]);
+
+  const handleSaveRule = async (ruleData) => {
+    try {
+      const method = editMode ? 'PUT' : 'POST';
+      const url = editMode ? `${API_BASE}/api/rules/${ruleData.id}` : `${API_BASE}/api/rules`;
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(ruleData)
+      });
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: editMode ? 'ルールを更新しました' : 'ルールを作成しました' });
+        setSelectedRule(null);
+        setEditMode(false);
+        fetchRules();
+      } else {
+        const error = await response.json();
+        setMessage({ type: 'error', text: error.detail || '保存に失敗しました' });
+      }
+    } catch (error) {
+      console.error('Error saving rule:', error);
+      setMessage({ type: 'error', text: '保存に失敗しました' });
+    }
+  };
+
+  const handleDeleteRule = async (ruleId) => {
+    if (!window.confirm(`ルール ${ruleId} を削除しますか？`)) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/api/rules/${ruleId}`, { method: 'DELETE' });
+      if (response.ok) {
+        setMessage({ type: 'success', text: 'ルールを削除しました' });
+        fetchRules();
+      } else {
+        setMessage({ type: 'error', text: '削除に失敗しました' });
+      }
+    } catch (error) {
+      console.error('Error deleting rule:', error);
+      setMessage({ type: 'error', text: '削除に失敗しました' });
+    }
+  };
+
+  const handleValidate = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/api/validation/check`);
+      const data = await response.json();
+      if (data.status === 'ok') {
+        setMessage({ type: 'success', text: '整合性チェック: 問題ありません' });
+      } else {
+        setMessage({ type: 'warning', text: `整合性チェック: ${data.issues.length}件の問題が見つかりました` });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: '整合性チェックに失敗しました' });
+    }
+  };
+
+  return (
+    <div className="admin-page">
+      <div className="admin-header">
+        <h2>ルール管理</h2>
+        <div className="admin-actions">
+          <select value={filterVisaType} onChange={(e) => setFilterVisaType(e.target.value)}>
+            <option value="">全てのビザタイプ</option>
+            <option value="E">Eビザ</option>
+            <option value="L">Lビザ</option>
+            <option value="B">Bビザ</option>
+            <option value="H-1B">H-1Bビザ</option>
+            <option value="J-1">J-1ビザ</option>
+          </select>
+          <button className="admin-button" onClick={() => { setSelectedRule({}); setEditMode(false); }}>
+            新規ルール
+          </button>
+          <button className="admin-button secondary" onClick={handleValidate}>
+            整合性チェック
+          </button>
+        </div>
+      </div>
+
+      {message && (
+        <div className={`admin-message ${message.type}`}>
+          {message.text}
+          <button onClick={() => setMessage(null)}>&times;</button>
+        </div>
+      )}
+
+      <div className="admin-content">
+        <div className="rules-list">
+          {loading ? (
+            <p>読み込み中...</p>
+          ) : (
+            <table className="rules-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>名前</th>
+                  <th>ビザ</th>
+                  <th>条件数</th>
+                  <th>タイプ</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rules.map(rule => (
+                  <tr key={rule.id} className={selectedRule?.id === rule.id ? 'selected' : ''}>
+                    <td>{rule.id}</td>
+                    <td>{rule.name}</td>
+                    <td><span className={`visa-badge visa-${rule.visa_type.replace('-', '')}`}>{rule.visa_type}</span></td>
+                    <td>{rule.conditions.length}</td>
+                    <td>{rule.is_or_rule ? 'OR' : 'AND'}</td>
+                    <td>
+                      <button className="table-button" onClick={() => { setSelectedRule(rule); setEditMode(true); }}>編集</button>
+                      <button className="table-button danger" onClick={() => handleDeleteRule(rule.id)}>削除</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {selectedRule && (
+          <RuleEditor
+            rule={selectedRule}
+            isEdit={editMode}
+            onSave={handleSaveRule}
+            onCancel={() => { setSelectedRule(null); setEditMode(false); }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ルール編集フォーム
+function RuleEditor({ rule, isEdit, onSave, onCancel }) {
+  const [formData, setFormData] = useState({
+    id: rule.id || '',
+    name: rule.name || '',
+    conditions: rule.conditions || [''],
+    action: rule.action || '',
+    is_or_rule: rule.is_or_rule || false,
+    visa_type: rule.visa_type || 'E',
+    rule_type: rule.rule_type || 'i'
+  });
+
+  const handleConditionChange = (index, value) => {
+    const newConditions = [...formData.conditions];
+    newConditions[index] = value;
+    setFormData({ ...formData, conditions: newConditions });
+  };
+
+  const addCondition = () => {
+    setFormData({ ...formData, conditions: [...formData.conditions, ''] });
+  };
+
+  const removeCondition = (index) => {
+    const newConditions = formData.conditions.filter((_, i) => i !== index);
+    setFormData({ ...formData, conditions: newConditions });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const cleanedConditions = formData.conditions.filter(c => c.trim() !== '');
+    onSave({ ...formData, conditions: cleanedConditions });
+  };
+
+  return (
+    <div className="rule-editor">
+      <h3>{isEdit ? 'ルール編集' : '新規ルール作成'}</h3>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>ID</label>
+          <input
+            type="text"
+            value={formData.id}
+            onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+            disabled={isEdit}
+            required
+            placeholder="例: E012"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>ルール名</label>
+          <input
+            type="text"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+            placeholder="例: 新規条件"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>ビザタイプ</label>
+          <select value={formData.visa_type} onChange={(e) => setFormData({ ...formData, visa_type: e.target.value })}>
+            <option value="E">Eビザ</option>
+            <option value="L">Lビザ</option>
+            <option value="B">Bビザ</option>
+            <option value="H-1B">H-1Bビザ</option>
+            <option value="J-1">J-1ビザ</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>条件タイプ</label>
+          <div className="radio-group">
+            <label>
+              <input
+                type="radio"
+                checked={!formData.is_or_rule}
+                onChange={() => setFormData({ ...formData, is_or_rule: false })}
+              /> AND（全て満たす）
+            </label>
+            <label>
+              <input
+                type="radio"
+                checked={formData.is_or_rule}
+                onChange={() => setFormData({ ...formData, is_or_rule: true })}
+              /> OR（いずれか満たす）
+            </label>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label>ルールタイプ</label>
+          <select value={formData.rule_type} onChange={(e) => setFormData({ ...formData, rule_type: e.target.value })}>
+            <option value="i">開始ルール（直接質問）</option>
+            <option value="m">中間ルール（導出条件）</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>条件 (IF)</label>
+          {formData.conditions.map((cond, index) => (
+            <div key={index} className="condition-input">
+              <input
+                type="text"
+                value={cond}
+                onChange={(e) => handleConditionChange(index, e.target.value)}
+                placeholder="条件を入力"
+              />
+              {formData.conditions.length > 1 && (
+                <button type="button" className="remove-btn" onClick={() => removeCondition(index)}>-</button>
+              )}
+            </div>
+          ))}
+          <button type="button" className="add-btn" onClick={addCondition}>+ 条件追加</button>
+        </div>
+
+        <div className="form-group">
+          <label>結論 (THEN)</label>
+          <input
+            type="text"
+            value={formData.action}
+            onChange={(e) => setFormData({ ...formData, action: e.target.value })}
+            required
+            placeholder="結論を入力"
+          />
+        </div>
+
+        <div className="form-actions">
+          <button type="submit" className="save-btn">保存</button>
+          <button type="button" className="cancel-btn" onClick={onCancel}>キャンセル</button>
+        </div>
+      </form>
     </div>
   );
 }
