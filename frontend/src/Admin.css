@@ -1,0 +1,310 @@
+/* ========== ヘッダーボタン active状態 ========== */
+.header-button.active {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: white;
+}
+
+/* ========== 管理画面 ========== */
+.admin-page {
+  flex: 1;
+  padding: 24px;
+  background: #f5f7fa;
+  overflow-y: auto;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  background: white;
+  padding: 20px 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.admin-header h2 {
+  font-size: 1.4rem;
+  color: #1a365d;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-actions select {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.admin-button {
+  padding: 10px 20px;
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.admin-button:hover {
+  background: #2b6cb0;
+}
+
+.admin-button.secondary {
+  background: #718096;
+}
+
+.admin-button.secondary:hover {
+  background: #4a5568;
+}
+
+.admin-message {
+  padding: 12px 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-message.success {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.admin-message.error {
+  background: #fed7d7;
+  color: #822727;
+}
+
+.admin-message.warning {
+  background: #fefcbf;
+  color: #744210;
+}
+
+.admin-message button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.admin-content {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+}
+
+.rules-list {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.rules-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rules-table th,
+.rules-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.rules-table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.85rem;
+}
+
+.rules-table tr:hover {
+  background: #f7fafc;
+}
+
+.rules-table tr.selected {
+  background: #ebf8ff;
+}
+
+.table-button {
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-right: 8px;
+  transition: background 0.2s;
+}
+
+.table-button:hover {
+  background: #f7fafc;
+}
+
+.table-button.danger {
+  color: #e53e3e;
+  border-color: #fed7d7;
+}
+
+.table-button.danger:hover {
+  background: #fff5f5;
+}
+
+/* ルール編集フォーム */
+.rule-editor {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  position: sticky;
+  top: 24px;
+}
+
+.rule-editor h3 {
+  font-size: 1.1rem;
+  color: #1a365d;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 6px;
+}
+
+.form-group input[type="text"],
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.form-group input:disabled {
+  background: #f7fafc;
+  color: #a0aec0;
+}
+
+.radio-group {
+  display: flex;
+  gap: 20px;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.condition-input {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.condition-input input {
+  flex: 1;
+}
+
+.remove-btn {
+  width: 36px;
+  height: 36px;
+  background: #fed7d7;
+  color: #e53e3e;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.add-btn {
+  padding: 8px 16px;
+  background: #f7fafc;
+  border: 1px dashed #cbd5e0;
+  border-radius: 6px;
+  color: #4a5568;
+  cursor: pointer;
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+.add-btn:hover {
+  background: #edf2f7;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.save-btn {
+  flex: 1;
+  padding: 12px;
+  background: #48bb78;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.save-btn:hover {
+  background: #38a169;
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 12px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.cancel-btn:hover {
+  background: #f7fafc;
+}
+
+@media (max-width: 1024px) {
+  .admin-content {
+    grid-template-columns: 1fr;
+  }
+
+  .rule-editor {
+    position: static;
+  }
+}
