@@ -195,6 +195,7 @@ async def get_rules(visa_type: Optional[str] = None, sort: Optional[str] = "visa
 @app.get("/api/rules/{rule_id}")
 async def get_rule(rule_id: str):
     """特定のルールを取得"""
+    reload_rules()  # 最新のルールを取得
     for rule in VISA_RULES:
         if rule.id == rule_id:
             return {
@@ -227,6 +228,7 @@ async def get_visa_types():
 @app.get("/api/validation/check")
 async def validate_rules(visa_type: Optional[str] = None):
     """ルールの整合性チェック"""
+    reload_rules()  # 最新のルールを取得
     rules = get_all_rules()
     if visa_type:
         rules = [r for r in rules if r.visa_type == visa_type]
@@ -308,6 +310,7 @@ async def validate_rules(visa_type: Optional[str] = None):
 @app.post("/api/rules")
 async def create_rule(rule: RuleRequest):
     """新しいルールを作成"""
+    reload_rules()  # 最新のルールを取得
     # 既存ルールと重複チェック
     for r in VISA_RULES:
         if r.id == rule.id:
@@ -360,6 +363,7 @@ async def create_rule(rule: RuleRequest):
 @app.put("/api/rules/{rule_id}")
 async def update_rule(rule_id: str, rule: RuleRequest):
     """既存ルールを更新"""
+    reload_rules()  # 最新のルールを取得
     found = False
     for r in VISA_RULES:
         if r.id == rule_id:
@@ -416,6 +420,7 @@ async def update_rule(rule_id: str, rule: RuleRequest):
 @app.delete("/api/rules/{rule_id}")
 async def delete_rule(rule_id: str):
     """ルールを削除"""
+    reload_rules()  # 最新のルールを取得
     found = False
     for r in VISA_RULES:
         if r.id == rule_id:
@@ -465,6 +470,7 @@ class ReorderRequest(BaseModel):
 @app.post("/api/rules/reorder")
 async def reorder_rules(request: ReorderRequest):
     """ルールの順序を変更"""
+    reload_rules()  # 最新のルールを取得
     # 現在のルールをIDでマップ化
     rules_map = {r.id: r for r in VISA_RULES}
 
@@ -521,6 +527,7 @@ async def auto_organize_rules():
     """
     from knowledge_base import _load_goal_actions_from_json
 
+    reload_rules()  # 最新のルールを取得
     goal_actions = _load_goal_actions_from_json()
 
     # 全ルールのactionをマップ
