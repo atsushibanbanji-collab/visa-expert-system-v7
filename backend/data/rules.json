@@ -1,6 +1,19 @@
 {
   "rules": [
     {
+      "id": "E001",
+      "name": "Eビザ申請可能",
+      "conditions": [
+        "申請者と会社の国籍が同じです",
+        "会社がEビザの条件を満たします",
+        "申請者がEビザの条件を満たします"
+      ],
+      "action": "Eビザでの申請ができます",
+      "is_or_rule": false,
+      "visa_type": "E",
+      "rule_type": "m"
+    },
+    {
       "id": "E002",
       "name": "会社Eビザ条件",
       "conditions": [
@@ -14,6 +27,19 @@
     },
     {
       "id": "E003",
+      "name": "申請者Eビザ条件",
+      "conditions": [
+        "申請者がEビザのマネージャー以上の条件を満たします",
+        "申請者がEビザのスタッフの条件を満たします",
+        "EビザTDY(short-term needs)の条件を満たします"
+      ],
+      "action": "申請者がEビザの条件を満たします",
+      "is_or_rule": true,
+      "visa_type": "E",
+      "rule_type": "m"
+    },
+    {
+      "id": "E004",
       "name": "投資条件",
       "conditions": [
         "減価償却前の設備や建物が30万ドル以上財務諸表の資産に計上されています",
@@ -27,7 +53,7 @@
       "rule_type": "i"
     },
     {
-      "id": "E004",
+      "id": "E005",
       "name": "貿易条件",
       "conditions": [
         "会社の行う貿易の50％が日米間です",
@@ -38,19 +64,6 @@
       "is_or_rule": false,
       "visa_type": "E",
       "rule_type": "i"
-    },
-    {
-      "id": "E005",
-      "name": "申請者Eビザ条件",
-      "conditions": [
-        "申請者がEビザのマネージャー以上の条件を満たします",
-        "申請者がEビザのスタッフの条件を満たします",
-        "EビザTDY(short-term needs)の条件を満たします"
-      ],
-      "action": "申請者がEビザの条件を満たします",
-      "is_or_rule": true,
-      "visa_type": "E",
-      "rule_type": "m"
     },
     {
       "id": "E006",
@@ -141,6 +154,18 @@
     },
     {
       "id": "L002",
+      "name": "Individual Lビザ申請可能",
+      "conditions": [
+        "アメリカ以外からアメリカへのグループ内での異動です",
+        "申請者がLビザ（Individual）の条件を満たします"
+      ],
+      "action": "Lビザ（Individual）での申請ができます",
+      "is_or_rule": false,
+      "visa_type": "L",
+      "rule_type": "m"
+    },
+    {
+      "id": "L003",
       "name": "会社Blanket Lビザ条件",
       "conditions": [
         "アメリカにある子会社の売り上げの合計が25百万ドル以上です",
@@ -153,7 +178,7 @@
       "rule_type": "i"
     },
     {
-      "id": "L003",
+      "id": "L004",
       "name": "申請者Blanket Lビザ条件",
       "conditions": [
         "直近3年のうち1年以上、アメリカ以外のグループ会社に所属していました",
@@ -165,55 +190,7 @@
       "rule_type": "m"
     },
     {
-      "id": "L004",
-      "name": "Blanket Lビザマネージャーまたはスタッフ",
-      "conditions": [
-        "Blanket Lビザのマネージャーの条件を満たします",
-        "Blanket Lビザスタッフの条件を満たします"
-      ],
-      "action": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします",
-      "is_or_rule": true,
-      "visa_type": "L",
-      "rule_type": "m"
-    },
-    {
       "id": "L005",
-      "name": "Blanket Lマネージャー条件",
-      "conditions": [
-        "マネージャーとしての経験があります",
-        "アメリカでの業務はマネージャーとみなされます"
-      ],
-      "action": "Blanket Lビザのマネージャーの条件を満たします",
-      "is_or_rule": false,
-      "visa_type": "L",
-      "rule_type": "i"
-    },
-    {
-      "id": "L006",
-      "name": "Blanket Lスタッフ条件",
-      "conditions": [
-        "specialized knowledgeがあります",
-        "アメリカでの業務はspecialized knowledgeを必要とします"
-      ],
-      "action": "Blanket Lビザスタッフの条件を満たします",
-      "is_or_rule": false,
-      "visa_type": "L",
-      "rule_type": "i"
-    },
-    {
-      "id": "L007",
-      "name": "Individual Lビザ申請可能",
-      "conditions": [
-        "アメリカ以外からアメリカへのグループ内での異動です",
-        "申請者がLビザ（Individual）の条件を満たします"
-      ],
-      "action": "Lビザ（Individual）での申請ができます",
-      "is_or_rule": false,
-      "visa_type": "L",
-      "rule_type": "m"
-    },
-    {
-      "id": "L008",
       "name": "申請者Individual Lビザ条件",
       "conditions": [
         "直近3年のうち1年以上、アメリカ以外のグループ会社に所属していました",
@@ -225,7 +202,55 @@
       "rule_type": "m"
     },
     {
+      "id": "L006",
+      "name": "Blanket Lビザマネージャーまたはスタッフ",
+      "conditions": [
+        "Blanket Lビザのマネージャーの条件を満たします",
+        "Blanket Lビザスタッフの条件を満たします"
+      ],
+      "action": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします",
+      "is_or_rule": true,
+      "visa_type": "L",
+      "rule_type": "m"
+    },
+    {
+      "id": "L007",
+      "name": "Individual Lマネージャーまたはスタッフ",
+      "conditions": [
+        "Lビザ（Individual）のマネージャーの条件を満たします",
+        "Lビザ（Individual）のスタッフの条件を満たします"
+      ],
+      "action": "Lビザ（Individual）のマネージャーまたはスタッフの条件を満たします",
+      "is_or_rule": true,
+      "visa_type": "L",
+      "rule_type": "m"
+    },
+    {
+      "id": "L008",
+      "name": "Blanket Lマネージャー条件",
+      "conditions": [
+        "マネージャーとしての経験があります",
+        "アメリカでの業務はマネージャーとみなされます"
+      ],
+      "action": "Blanket Lビザのマネージャーの条件を満たします",
+      "is_or_rule": false,
+      "visa_type": "L",
+      "rule_type": "i"
+    },
+    {
       "id": "L009",
+      "name": "Blanket Lスタッフ条件",
+      "conditions": [
+        "specialized knowledgeがあります",
+        "アメリカでの業務はspecialized knowledgeを必要とします"
+      ],
+      "action": "Blanket Lビザスタッフの条件を満たします",
+      "is_or_rule": false,
+      "visa_type": "L",
+      "rule_type": "i"
+    },
+    {
+      "id": "L010",
       "name": "Individual Lマネージャー条件",
       "conditions": [
         "マネージャーとしての経験があります",
@@ -238,7 +263,7 @@
       "rule_type": "i"
     },
     {
-      "id": "L010",
+      "id": "L011",
       "name": "Individual Lスタッフ条件",
       "conditions": [
         "specialized knowledgeがあります",
@@ -250,16 +275,17 @@
       "rule_type": "i"
     },
     {
-      "id": "L011",
-      "name": "Individual Lマネージャーまたはスタッフ",
+      "id": "H001",
+      "name": "H-1Bビザ申請可能",
       "conditions": [
-        "Lビザ（Individual）のマネージャーの条件を満たします",
-        "Lビザ（Individual）のスタッフの条件を満たします"
+        "大卒以上で、専攻内容と業務内容が一致しています",
+        "大卒以上で、専攻内容と業務内容が異なりますが、実務経験が3年以上あります",
+        "大卒以上ではありませんが、実務経験が(高卒は12年以上、高専卒は3年以上）あります"
       ],
-      "action": "Lビザ（Individual）のマネージャーまたはスタッフの条件を満たします",
+      "action": "H-1Bビザでの申請ができます",
       "is_or_rule": true,
-      "visa_type": "L",
-      "rule_type": "m"
+      "visa_type": "H-1B",
+      "rule_type": "i"
     },
     {
       "id": "B001",
@@ -348,19 +374,6 @@
       "rule_type": "i"
     },
     {
-      "id": "H001",
-      "name": "H-1Bビザ申請可能",
-      "conditions": [
-        "大卒以上で、専攻内容と業務内容が一致しています",
-        "大卒以上で、専攻内容と業務内容が異なりますが、実務経験が3年以上あります",
-        "大卒以上ではありませんが、実務経験が(高卒は12年以上、高専卒は3年以上）あります"
-      ],
-      "action": "H-1Bビザでの申請ができます",
-      "is_or_rule": true,
-      "visa_type": "H-1B",
-      "rule_type": "i"
-    },
-    {
       "id": "J001",
       "name": "J-1ビザ申請可能",
       "conditions": [
@@ -372,20 +385,6 @@
       "is_or_rule": false,
       "visa_type": "J-1",
       "rule_type": "i"
-    },
-    {
-      "id": "E001",
-      "name": "Eビザ申請可能",
-      "conditions": [
-        "申請者と会社の国籍が同じです",
-        "会社がEビザの条件を満たします",
-        "申請者がEビザの条件を満たします",
-        "テスト条件を満たす"
-      ],
-      "action": "Eビザでの申請ができます",
-      "is_or_rule": false,
-      "visa_type": "E",
-      "rule_type": "m"
     }
   ],
   "goal_actions": [
