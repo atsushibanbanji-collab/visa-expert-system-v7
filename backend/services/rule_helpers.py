@@ -3,7 +3,9 @@
 """
 from typing import List, Set
 
-from knowledge_base import VISA_RULES, VISA_TYPE_ORDER, _load_goal_actions_from_json
+from core import VISA_TYPE_ORDER
+from knowledge import VISA_RULES
+from knowledge.loader import load_goal_actions_from_json
 
 
 def rule_to_dict(rule) -> dict:
@@ -25,7 +27,7 @@ def rules_to_dict_list(rules: list) -> list:
 def build_rules_data(rules: list, goal_actions: Set[str] = None) -> dict:
     """ルールリストをJSON保存用のdict形式に変換"""
     if goal_actions is None:
-        goal_actions = _load_goal_actions_from_json()
+        goal_actions = load_goal_actions_from_json()
     return {
         "rules": rules_to_dict_list(rules),
         "goal_actions": list(goal_actions)

@@ -4,8 +4,8 @@
 from typing import Dict
 from fastapi import APIRouter, HTTPException
 
-from inference_engine import InferenceEngine
-from knowledge_base import reload_rules
+from engine import InferenceEngine
+from knowledge import reload_rules
 from schemas import StartRequest, AnswerRequest, GoBackRequest
 from services.validation import check_rules_integrity
 

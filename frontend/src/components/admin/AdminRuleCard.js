@@ -9,6 +9,7 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
     visa_type: initialVisaType
   });
   const [hasChanges, setHasChanges] = useState(isNew);
+  const [insertAfter, setInsertAfter] = useState(''); // 挿入位置（空=末尾）
   const originalAction = rule.action || '';
 
   const updateField = (field, value) => {
@@ -58,6 +59,12 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
     if (!isNew && originalAction) {
       saveData.original_action = originalAction;
     }
+    if (isNew && insertAfter !== '') {
+      const pos = parseInt(insertAfter, 10);
+      if (!isNaN(pos) && pos >= 0) {
+        saveData.insert_after = pos;
+      }
+    }
     onSave(saveData);
     setHasChanges(false);
   };
@@ -86,6 +93,21 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
         <div className="rule-card-content">
           <div className="rule-card-header">
             <span className="rule-number">#{isNew ? 'NEW' : index + 1}</span>
+            {isNew && (
+              <span className="insert-position">
+                <label>挿入位置:</label>
+                <input
+                  type="number"
+                  min="0"
+                  max={totalRules}
+                  value={insertAfter}
+                  onChange={(e) => setInsertAfter(e.target.value)}
+                  placeholder={`末尾(${totalRules + 1})`}
+                  style={{ width: '80px' }}
+                />
+                <span className="hint">番の後</span>
+              </span>
+            )}
             <select className="rule-visa-select" value={formData.visa_type} onChange={(e) => updateField('visa_type', e.target.value)}>
               <option value="E">E</option>
               <option value="L">L</option>

@@ -4,7 +4,8 @@
 from collections import Counter
 from typing import List, Optional
 
-from knowledge_base import VISA_RULES, get_all_rules, _load_goal_actions_from_json
+from knowledge import VISA_RULES, get_all_rules
+from knowledge.loader import load_goal_actions_from_json
 
 
 def find_rule_by_action(action: str):
@@ -20,7 +21,7 @@ def check_rules_integrity(visa_type: Optional[str] = None) -> List[dict]:
 
     issues = []
     all_actions = {r.action for r in VISA_RULES}
-    goal_actions = _load_goal_actions_from_json()
+    goal_actions = load_goal_actions_from_json()
 
     # 到達不能なルールをチェック
     for rule in rules:

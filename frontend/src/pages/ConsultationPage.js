@@ -26,7 +26,6 @@ function ConsultationPage({ onBack }) {
         body: JSON.stringify({ session_id: sessionId })
       });
       const data = await response.json();
-      console.log('[START]', data);
 
       if (!response.ok) {
         setValidationError({
@@ -63,14 +62,12 @@ function ConsultationPage({ onBack }) {
         body: JSON.stringify({ session_id: sessionId, answer })
       });
       const data = await response.json();
-      console.log('[ANSWER]', answer, data);
       setCurrentQuestion(data.current_question);
       setRelatedVisaTypes(data.related_visa_types || []);
       setRulesStatus(data.rules_status || []);
       setDerivedFacts(data.derived_facts || []);
       setIsComplete(data.is_complete);
       if (data.is_complete && data.diagnosis_result) {
-        console.log('[RESULT]', data.diagnosis_result);
         setDiagnosisResult(data.diagnosis_result);
       }
     } catch (error) {
@@ -89,7 +86,6 @@ function ConsultationPage({ onBack }) {
         body: JSON.stringify({ session_id: sessionId, steps: 1 })
       });
       const data = await response.json();
-      console.log('[BACK]', data);
       setCurrentQuestion(data.current_question);
       setRelatedVisaTypes(data.related_visa_types || []);
       setRulesStatus(data.rules_status || []);

@@ -250,6 +250,32 @@
   min-width: 32px;
 }
 
+.insert-position {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #4a5568;
+  background: #edf2f7;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.insert-position label {
+  font-weight: 500;
+}
+
+.insert-position input {
+  padding: 2px 6px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.insert-position .hint {
+  color: #718096;
+}
+
 .delete-btn {
   padding: 4px 8px;
   border: 1px solid #fed7d7;

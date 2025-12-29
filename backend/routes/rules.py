@@ -4,10 +4,11 @@
 from typing import Optional
 from fastapi import APIRouter, HTTPException
 
-from knowledge_base import (
-    get_all_rules, VISA_RULES, save_rules, reload_rules,
-    VISA_TYPE_ORDER, _load_goal_actions_from_json
+from core import VISA_TYPE_ORDER
+from knowledge import (
+    get_all_rules, VISA_RULES, save_rules, reload_rules
 )
+from knowledge.loader import load_goal_actions_from_json
 from schemas import RuleRequest, DeleteRequest, ReorderRequest, AutoOrganizeRequest
 from services.validation import check_rules_integrity
 from services.rule_helpers import (
@@ -60,17 +61,33 @@ async def validate_rules(visa_type: Optional[str] = None):
 
 @router.post("/rules")
 async def create_rule(rule: RuleRequest):
-    """新しいルールを作成（actionが識別子）"""
+    """新しいルールを作成（actionが識別子）
+
+    insert_after: 挿入位置（0=先頭、N=N番目の後、None=末尾）
+    """
     reload_rules()
     if find_rule_by_action(rule.action):
         raise HTTPException(status_code=400, detail=f"同じTHEN「{rule.action}」を持つルールが既に存在します")
 
     rules_data = build_rules_data(VISA_RULES)
-    rules_data["rules"].append(request_to_dict(rule))
+    new_rule = request_to_dict(rule)
+
+    # 挿入位置を決定
+    if rule.insert_after is not None:
+        insert_index = rule.insert_after  # 0なら先頭、Nならindex N に挿入
+        if insert_index < 0:
+            insert_index = 0
+        elif insert_index > len(rules_data["rules"]):
+            insert_index = len(rules_data["rules"])
+        rules_data["rules"].insert(insert_index, new_rule)
+    else:
+        insert_index = len(rules_data["rules"])
+        rules_data["rules"].append(new_rule)
 
     if not save_rules(rules_data):
         raise HTTPException(status_code=500, detail="Failed to save rule")
-    return {"status": "created", "action": rule.action}
+
+    return {"status": "created", "action": rule.action, "position": insert_index}
 
 
 @router.put("/rules")
@@ -133,7 +150,7 @@ async def auto_organize_rules(request: AutoOrganizeRequest = AutoOrganizeRequest
     - "action": action名順に整理（ビザタイプ順→action名順）
     """
     reload_rules()
-    goal_actions = _load_goal_actions_from_json()
+    goal_actions = load_goal_actions_from_json()
 
     if request.mode == "action":
         sorted_rules = sort_rules_by_action(VISA_RULES)

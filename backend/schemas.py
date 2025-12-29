@@ -30,6 +30,7 @@ class RuleRequest(BaseModel):
     visa_type: str = ""
     rule_type: str = "i"  # "i" for INITIAL, "m" for MIDDLE
     original_action: Optional[str] = None  # 編集時の元のaction
+    insert_after: Optional[int] = None  # 挿入位置（0=先頭、N=N番目の後、None=末尾）
 
 
 class DeleteRequest(BaseModel):

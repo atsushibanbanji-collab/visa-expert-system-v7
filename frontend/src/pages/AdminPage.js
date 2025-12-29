@@ -63,7 +63,14 @@ function AdminPage() {
         }
       } else {
         const error = await response.json();
-        setMessage({ type: 'error', text: error.detail || '保存に失敗しました' });
+        let errorText = '保存に失敗しました';
+        if (typeof error.detail === 'string') {
+          errorText = error.detail;
+        } else if (Array.isArray(error.detail)) {
+          // Pydantic validation error format
+          errorText = error.detail.map(e => e.msg || JSON.stringify(e)).join(', ');
+        }
+        setMessage({ type: 'error', text: errorText });
       }
     } catch (error) {
       console.error('Error saving rule:', error);
