@@ -11,7 +11,6 @@ from .store import (
     reload_rules,
     save_rules,
 )
-from .loader import load_goal_actions_from_json
 
 __all__ = [
     "VISA_RULES",
@@ -22,5 +21,4 @@ __all__ = [
     "get_derived_conditions",
     "reload_rules",
     "save_rules",
-    "load_goal_actions_from_json",
 ]

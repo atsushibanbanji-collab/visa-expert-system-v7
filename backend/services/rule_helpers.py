@@ -1,11 +1,10 @@
 """
 ルール操作のヘルパー関数
 """
-from typing import List, Set
+from typing import List
 
 from core import VISA_TYPE_ORDER
 from knowledge import VISA_RULES
-from knowledge.loader import load_goal_actions_from_json
 
 
 def rule_to_dict(rule) -> dict:
@@ -15,7 +14,8 @@ def rule_to_dict(rule) -> dict:
         "action": rule.action,
         "is_or_rule": rule.is_or_rule,
         "visa_type": rule.visa_type,
-        "rule_type": rule.rule_type.value
+        "rule_type": rule.rule_type.value,
+        "is_goal_action": rule.is_goal_action
     }
 
 
@@ -24,13 +24,10 @@ def rules_to_dict_list(rules: list) -> list:
     return [rule_to_dict(r) for r in rules]
 
 
-def build_rules_data(rules: list, goal_actions: Set[str] = None) -> dict:
+def build_rules_data(rules: list) -> dict:
     """ルールリストをJSON保存用のdict形式に変換"""
-    if goal_actions is None:
-        goal_actions = load_goal_actions_from_json()
     return {
-        "rules": rules_to_dict_list(rules),
-        "goal_actions": list(goal_actions)
+        "rules": rules_to_dict_list(rules)
     }
 
 
@@ -51,14 +48,14 @@ def sort_rules_by_action(rules: list) -> list:
     return sorted(rules, key=lambda r: (VISA_TYPE_ORDER.get(r.visa_type, 99), r.action))
 
 
-def sort_rules_by_dependency(rules: list, goal_actions: Set[str]) -> list:
+def sort_rules_by_dependency(rules: list) -> list:
     """依存関係順でソート（ビザタイプ順 → 深度順）"""
     depth_cache = {}
 
     def get_depth(rule) -> int:
         if rule.id in depth_cache:
             return depth_cache[rule.id]
-        if rule.action in goal_actions:
+        if rule.is_goal_action:
             depth_cache[rule.id] = 0
             return 0
         max_parent_depth = -1
@@ -80,5 +77,6 @@ def request_to_dict(rule) -> dict:
         "action": rule.action,
         "is_or_rule": rule.is_or_rule,
         "visa_type": rule.visa_type,
-        "rule_type": rule.rule_type
+        "rule_type": rule.rule_type,
+        "is_goal_action": rule.is_goal_action
     }

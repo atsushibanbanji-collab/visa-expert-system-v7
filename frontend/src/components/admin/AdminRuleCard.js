@@ -6,7 +6,8 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
     conditions: rule.conditions?.length ? rule.conditions : [''],
     action: rule.action || '',
     is_or_rule: rule.is_or_rule || false,
-    visa_type: initialVisaType
+    visa_type: initialVisaType,
+    is_goal_action: rule.is_goal_action || false
   });
   const [hasChanges, setHasChanges] = useState(isNew);
   const [insertAfter, setInsertAfter] = useState(''); // 挿入位置（空=末尾）
@@ -53,7 +54,8 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
     const saveData = {
       ...formData,
       conditions: cleanedConditions,
-      rule_type: 'i'
+      rule_type: 'i',
+      is_goal_action: formData.is_goal_action
     };
     if (!isNew) {
       // 既存ルールの更新はindexで特定
@@ -74,7 +76,8 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
       conditions: rule.conditions?.length ? rule.conditions : [''],
       action: rule.action || '',
       is_or_rule: rule.is_or_rule || false,
-      visa_type: rule.visa_type || 'E'
+      visa_type: rule.visa_type || 'E',
+      is_goal_action: rule.is_goal_action || false
     });
     setHasChanges(false);
     if (isNew) onCancel();
@@ -119,6 +122,14 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
               <option value="and">AND</option>
               <option value="or">OR</option>
             </select>
+            <label className="goal-action-checkbox">
+              <input
+                type="checkbox"
+                checked={formData.is_goal_action}
+                onChange={(e) => updateField('is_goal_action', e.target.checked)}
+              />
+              ゴール
+            </label>
           </div>
 
           <div className="rule-card-body">

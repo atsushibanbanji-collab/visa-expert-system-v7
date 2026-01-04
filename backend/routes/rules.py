@@ -8,8 +8,7 @@ from core import VISA_TYPE_ORDER
 from knowledge import (
     get_all_rules, VISA_RULES, save_rules, reload_rules
 )
-from knowledge.loader import load_goal_actions_from_json
-from schemas import RuleRequest, DeleteRequest, ReorderRequest, AutoOrganizeRequest, GoalActionsRequest
+from schemas import RuleRequest, DeleteRequest, ReorderRequest, AutoOrganizeRequest
 from services.validation import check_rules_integrity
 from services.rule_helpers import (
     rules_to_dict_list, build_rules_data, sort_rules_by_action,
@@ -150,14 +149,13 @@ async def auto_organize_rules(request: AutoOrganizeRequest = AutoOrganizeRequest
     - "action": action名順に整理（ビザタイプ順→action名順）
     """
     reload_rules()
-    goal_actions = load_goal_actions_from_json()
 
     if request.mode == "action":
         sorted_rules = sort_rules_by_action(VISA_RULES)
     else:
-        sorted_rules = sort_rules_by_dependency(VISA_RULES, goal_actions)
+        sorted_rules = sort_rules_by_dependency(VISA_RULES)
 
-    if not save_rules(build_rules_data(sorted_rules, goal_actions)):
+    if not save_rules(build_rules_data(sorted_rules)):
         raise HTTPException(status_code=500, detail="Failed to save organized rules")
     return {"status": "organized", "count": len(sorted_rules)}
 
@@ -167,21 +165,3 @@ async def reload_all_rules():
     """ルールをJSONファイルから再読み込み"""
     reload_rules()
     return {"status": "reloaded", "count": len(VISA_RULES)}
-
-
-@router.get("/goal-actions")
-async def get_goal_actions():
-    """ゴールアクション一覧を取得"""
-    goal_actions = load_goal_actions_from_json()
-    return {"goal_actions": list(goal_actions)}
-
-
-@router.put("/goal-actions")
-async def update_goal_actions(request: GoalActionsRequest):
-    """ゴールアクションを更新"""
-    reload_rules()
-    rules_data = build_rules_data(VISA_RULES, set(request.goal_actions))
-
-    if not save_rules(rules_data):
-        raise HTTPException(status_code=500, detail="Failed to save goal actions")
-    return {"status": "updated", "count": len(request.goal_actions)}

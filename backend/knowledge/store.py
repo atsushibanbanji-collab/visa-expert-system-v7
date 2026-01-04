@@ -4,7 +4,7 @@
 from typing import List
 
 from core import Rule, VISA_TYPE_ORDER
-from .loader import load_rules_from_json, load_goal_actions_from_json, save_rules_to_json
+from .loader import load_rules_from_json, save_rules_to_json
 
 
 # グローバルルールストア（初回アクセス時にロード）
@@ -23,8 +23,7 @@ def get_rules_by_visa_type(visa_type: str) -> List[Rule]:
 
 def get_goal_rules() -> List[Rule]:
     """ゴールルール（最終結論を導くルール）を取得（E→L→H-1B→B→J-1順）"""
-    goal_actions = load_goal_actions_from_json()
-    goal_rules = [r for r in VISA_RULES if r.action in goal_actions]
+    goal_rules = [r for r in VISA_RULES if r.is_goal_action]
     return sorted(goal_rules, key=lambda r: VISA_TYPE_ORDER.get(r.visa_type, 99))
 
 

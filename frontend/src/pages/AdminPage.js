@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE } from '../config';
 import AdminRuleCard from '../components/admin/AdminRuleCard';
-import OrganizeModal from '../components/admin/OrganizeModal';
 
 function AdminPage() {
   const [rules, setRules] = useState([]);
@@ -9,10 +8,6 @@ function AdminPage() {
   const [filterVisaType, setFilterVisaType] = useState('');
   const [message, setMessage] = useState(null);
   const [showNewRuleForm, setShowNewRuleForm] = useState(false);
-  const [showOrganizeModal, setShowOrganizeModal] = useState(false);
-  const [showGoalActions, setShowGoalActions] = useState(false);
-  const [goalActions, setGoalActions] = useState([]);
-  const [editingGoalActions, setEditingGoalActions] = useState([]);
 
   const fetchRules = async () => {
     setLoading(true);
@@ -31,20 +26,8 @@ function AdminPage() {
     setLoading(false);
   };
 
-  const fetchGoalActions = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/api/goal-actions`);
-      const data = await response.json();
-      setGoalActions(data.goal_actions || []);
-      setEditingGoalActions(data.goal_actions || []);
-    } catch (error) {
-      console.error('Error fetching goal actions:', error);
-    }
-  };
-
   useEffect(() => {
     fetchRules();
-    fetchGoalActions();
   }, [filterVisaType]);
 
   const handleSaveRule = async (ruleData, isNew = false) => {
@@ -146,28 +129,6 @@ function AdminPage() {
     }
   };
 
-  const handleAutoOrganize = async (mode) => {
-    setShowOrganizeModal(false);
-
-    try {
-      const response = await fetch(`${API_BASE}/api/rules/auto-organize`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode })
-      });
-      if (response.ok) {
-        const modeText = mode === 'dependency' ? '依存関係順' : 'action名順';
-        setMessage({ type: 'success', text: `ルールを${modeText}で整理しました` });
-        fetchRules();
-      } else {
-        setMessage({ type: 'error', text: '整理に失敗しました' });
-      }
-    } catch (error) {
-      console.error('Error organizing rules:', error);
-      setMessage({ type: 'error', text: '整理に失敗しました' });
-    }
-  };
-
   const moveRule = async (index, direction) => {
     const newIndex = index + direction;
     if (newIndex < 0 || newIndex >= rules.length) return;
@@ -188,47 +149,6 @@ function AdminPage() {
     }
   };
 
-  const handleOpenGoalActions = () => {
-    setEditingGoalActions([...goalActions]);
-    setShowGoalActions(true);
-  };
-
-  const handleSaveGoalActions = async () => {
-    const filteredActions = editingGoalActions.filter(a => a.trim() !== '');
-    try {
-      const response = await fetch(`${API_BASE}/api/goal-actions`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ goal_actions: filteredActions })
-      });
-      if (response.ok) {
-        setGoalActions(filteredActions);
-        setShowGoalActions(false);
-        setMessage({ type: 'success', text: 'ゴールアクションを保存しました' });
-      } else {
-        setMessage({ type: 'error', text: 'ゴールアクションの保存に失敗しました' });
-      }
-    } catch (error) {
-      console.error('Error saving goal actions:', error);
-      setMessage({ type: 'error', text: 'ゴールアクションの保存に失敗しました' });
-    }
-  };
-
-  const updateGoalAction = (index, value) => {
-    const newActions = [...editingGoalActions];
-    newActions[index] = value;
-    setEditingGoalActions(newActions);
-  };
-
-  const addGoalAction = () => {
-    setEditingGoalActions([...editingGoalActions, '']);
-  };
-
-  const removeGoalAction = (index) => {
-    const newActions = editingGoalActions.filter((_, i) => i !== index);
-    setEditingGoalActions(newActions);
-  };
-
   return (
     <div className="admin-page">
       <div className="admin-header">
@@ -245,12 +165,6 @@ function AdminPage() {
           <button className="admin-button" onClick={() => setShowNewRuleForm(true)}>
             新規ルール
           </button>
-          <button className="admin-button secondary" onClick={handleOpenGoalActions}>
-            ゴール設定
-          </button>
-          <button className="admin-button danger" onClick={() => setShowOrganizeModal(true)}>
-            自動整理
-          </button>
           <button className="admin-button secondary" onClick={handleValidate}>
             整合性チェック
           </button>
@@ -262,56 +176,6 @@ function AdminPage() {
           {message.text}
           <button onClick={() => setMessage(null)}>&times;</button>
         </div>
-      )}
-
-      {showGoalActions && (
-        <div className="modal-overlay" onClick={() => setShowGoalActions(false)}>
-          <div className="goal-actions-modal" onClick={e => e.stopPropagation()}>
-            <h3>ゴールアクション設定</h3>
-            <p className="goal-actions-description">
-              推論の終端となるアクション（結論）を設定します。
-            </p>
-            <div className="goal-actions-list">
-              {editingGoalActions.map((action, index) => (
-                <div key={index} className="goal-action-item">
-                  <input
-                    type="text"
-                    value={action}
-                    onChange={(e) => updateGoalAction(index, e.target.value)}
-                    placeholder="ゴールアクションを入力"
-                  />
-                  <button
-                    className="remove-goal-action"
-                    onClick={() => removeGoalAction(index)}
-                    title="削除"
-                  >
-                    &times;
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="goal-actions-buttons">
-              <button className="admin-button secondary" onClick={addGoalAction}>
-                + 追加
-              </button>
-              <div className="goal-actions-right-buttons">
-                <button className="admin-button secondary" onClick={() => setShowGoalActions(false)}>
-                  キャンセル
-                </button>
-                <button className="admin-button" onClick={handleSaveGoalActions}>
-                  保存
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showOrganizeModal && (
-        <OrganizeModal
-          onSelect={handleAutoOrganize}
-          onClose={() => setShowOrganizeModal(false)}
-        />
       )}
 
       {showNewRuleForm && (
@@ -332,7 +196,7 @@ function AdminPage() {
         ) : (
           rules.map((rule, index) => (
             <AdminRuleCard
-              key={index}
+              key={rule.action}
               rule={rule}
               index={index}
               isNew={false}

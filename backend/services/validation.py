@@ -5,7 +5,6 @@ from collections import Counter
 from typing import List, Optional
 
 from knowledge import VISA_RULES, get_all_rules
-from knowledge.loader import load_goal_actions_from_json
 
 
 def find_rule_by_action(action: str):
@@ -21,7 +20,6 @@ def check_rules_integrity(visa_type: Optional[str] = None) -> List[dict]:
 
     issues = []
     all_actions = {r.action for r in VISA_RULES}
-    goal_actions = load_goal_actions_from_json()
 
     # 到達不能なルールをチェック
     for rule in rules:
@@ -59,7 +57,7 @@ def check_rules_integrity(visa_type: Optional[str] = None) -> List[dict]:
 
     # 孤立ルールをチェック（THENが他で使われていない + ゴールでもない）
     for rule in rules:
-        if rule.action not in goal_actions:
+        if not rule.is_goal_action:
             if not any(rule.action in r.conditions for r in VISA_RULES if r.action != rule.action):
                 issues.append({
                     "type": "orphan",

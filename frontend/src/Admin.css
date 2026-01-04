@@ -10,6 +10,7 @@
   padding: 16px;
   background: #f5f7fa;
   overflow-y: auto;
+  height: calc(100vh - 64px);
 }
 
 .admin-header {
@@ -21,6 +22,9 @@
   padding: 20px 24px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 16px;
+  z-index: 100;
 }
 
 .admin-header h2 {

@@ -6,7 +6,6 @@ import json
 from typing import List
 
 from core import Rule, RuleType
-from core.constants import DEFAULT_GOAL_ACTIONS
 
 # データファイルのパス
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
@@ -29,26 +28,14 @@ def load_rules_from_json() -> List[Rule]:
                 action=r["action"],
                 rule_type=RuleType(r.get("rule_type", "i")),
                 is_or_rule=r.get("is_or_rule", False),
-                visa_type=r.get("visa_type", "")
+                visa_type=r.get("visa_type", ""),
+                is_goal_action=r.get("is_goal_action", False)
             )
             rules.append(rule)
         return rules
     except Exception as e:
         print(f"Warning: Failed to load rules from JSON: {e}")
         return _get_fallback_rules()
-
-
-def load_goal_actions_from_json() -> List[str]:
-    """JSONファイルからゴールアクションを読み込む"""
-    if not os.path.exists(RULES_FILE):
-        return DEFAULT_GOAL_ACTIONS.copy()
-
-    try:
-        with open(RULES_FILE, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        return data.get("goal_actions", DEFAULT_GOAL_ACTIONS.copy())
-    except Exception:
-        return DEFAULT_GOAL_ACTIONS.copy()
 
 
 def save_rules_to_json(rules_data: dict) -> bool:

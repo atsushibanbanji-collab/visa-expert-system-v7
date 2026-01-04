@@ -18,6 +18,7 @@ class Rule:
     rule_type: RuleType        # ルールタイプ
     is_or_rule: bool = False   # OR条件かどうか
     visa_type: str = ""        # 関連するビザタイプ
+    is_goal_action: bool = False  # ゴールアクションかどうか
     flag: str = None           # 発火状態フラグ
 
     def __post_init__(self):

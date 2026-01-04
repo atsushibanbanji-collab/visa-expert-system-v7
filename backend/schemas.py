@@ -29,6 +29,7 @@ class RuleRequest(BaseModel):
     is_or_rule: bool = False
     visa_type: str = ""
     rule_type: str = "i"  # "i" for INITIAL, "m" for MIDDLE
+    is_goal_action: bool = False  # ゴールアクションかどうか
     index: Optional[int] = None  # 編集時の対象インデックス（0始まり）
     insert_after: Optional[int] = None  # 挿入位置（0=先頭、N=N番目の後、None=末尾）
 
@@ -43,7 +44,3 @@ class ReorderRequest(BaseModel):
 
 class AutoOrganizeRequest(BaseModel):
     mode: str = "dependency"  # "dependency" or "action"
-
-
-class GoalActionsRequest(BaseModel):
-    goal_actions: List[str]
