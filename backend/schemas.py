@@ -40,7 +40,3 @@ class DeleteRequest(BaseModel):
 
 class ReorderRequest(BaseModel):
     actions: List[str]
-
-
-class AutoOrganizeRequest(BaseModel):
-    mode: str = "dependency"  # "dependency" or "action"

@@ -8,11 +8,10 @@ from core import VISA_TYPE_ORDER
 from knowledge import (
     get_all_rules, VISA_RULES, save_rules, reload_rules
 )
-from schemas import RuleRequest, DeleteRequest, ReorderRequest, AutoOrganizeRequest
+from schemas import RuleRequest, DeleteRequest, ReorderRequest
 from services.validation import check_rules_integrity
 from services.rule_helpers import (
-    rules_to_dict_list, build_rules_data, sort_rules_by_action,
-    sort_rules_by_dependency, request_to_dict
+    rules_to_dict_list, build_rules_data, request_to_dict
 )
 
 router = APIRouter(prefix="/api", tags=["rules"])
@@ -138,26 +137,6 @@ async def reorder_rules(request: ReorderRequest):
     if not save_rules(build_rules_data(reordered)):
         raise HTTPException(status_code=500, detail="Failed to save rule order")
     return {"status": "reordered", "count": len(reordered)}
-
-
-@router.post("/rules/auto-organize")
-async def auto_organize_rules(request: AutoOrganizeRequest = AutoOrganizeRequest()):
-    """ルールを自動整理
-
-    mode:
-    - "dependency": 依存関係に基づいて整理（ビザタイプ順→深度順）
-    - "action": action名順に整理（ビザタイプ順→action名順）
-    """
-    reload_rules()
-
-    if request.mode == "action":
-        sorted_rules = sort_rules_by_action(VISA_RULES)
-    else:
-        sorted_rules = sort_rules_by_dependency(VISA_RULES)
-
-    if not save_rules(build_rules_data(sorted_rules)):
-        raise HTTPException(status_code=500, detail="Failed to save organized rules")
-    return {"status": "organized", "count": len(sorted_rules)}
 
 
 @router.post("/rules/reload")

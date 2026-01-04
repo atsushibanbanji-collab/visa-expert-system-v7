@@ -1,10 +1,6 @@
 """
 ルール操作のヘルパー関数
 """
-from typing import List
-
-from core import VISA_TYPE_ORDER
-from knowledge import VISA_RULES
 
 
 def rule_to_dict(rule) -> dict:
@@ -29,45 +25,6 @@ def build_rules_data(rules: list) -> dict:
     return {
         "rules": rules_to_dict_list(rules)
     }
-
-
-def find_rule_by_action(action: str):
-    """actionでルールを検索"""
-    return next((r for r in VISA_RULES if r.action == action), None)
-
-
-def rules_excluding_action(exclude_action: str = None) -> list:
-    """指定actionを除外したルールリストを返す"""
-    if exclude_action:
-        return [r for r in VISA_RULES if r.action != exclude_action]
-    return list(VISA_RULES)
-
-
-def sort_rules_by_action(rules: list) -> list:
-    """action名順でソート（ビザタイプ順 → action名順）"""
-    return sorted(rules, key=lambda r: (VISA_TYPE_ORDER.get(r.visa_type, 99), r.action))
-
-
-def sort_rules_by_dependency(rules: list) -> list:
-    """依存関係順でソート（ビザタイプ順 → 深度順）"""
-    depth_cache = {}
-
-    def get_depth(rule) -> int:
-        if rule.id in depth_cache:
-            return depth_cache[rule.id]
-        if rule.is_goal_action:
-            depth_cache[rule.id] = 0
-            return 0
-        max_parent_depth = -1
-        for other in rules:
-            if rule.action in other.conditions:
-                max_parent_depth = max(max_parent_depth, get_depth(other))
-        depth_cache[rule.id] = 999 if max_parent_depth == -1 else max_parent_depth + 1
-        return depth_cache[rule.id]
-
-    for rule in rules:
-        get_depth(rule)
-    return sorted(rules, key=lambda r: (VISA_TYPE_ORDER.get(r.visa_type, 99), depth_cache.get(r.id, 999)))
 
 
 def request_to_dict(rule) -> dict:
