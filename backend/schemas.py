@@ -40,3 +40,11 @@ class DeleteRequest(BaseModel):
 
 class ReorderRequest(BaseModel):
     actions: List[str]
+
+
+# ========== ビザタイプ管理関連 ==========
+
+class VisaTypeRequest(BaseModel):
+    code: str
+    name: str
+    order: Optional[int] = None

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { VISA_TYPES } from '../../constants';
+import { useVisaTypes } from '../../context/VisaTypeContext';
 
 function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDelete, onMoveUp, onMoveDown }) {
-  const initialVisaType = rule.visa_type || 'E';
+  const { visaTypeCodes } = useVisaTypes();
+  const initialVisaType = rule.visa_type || visaTypeCodes[0] || 'E';
   const [formData, setFormData] = useState({
     conditions: rule.conditions?.length ? rule.conditions : [''],
     action: rule.action || '',
@@ -69,7 +70,7 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
       conditions: rule.conditions?.length ? rule.conditions : [''],
       action: rule.action || '',
       is_or_rule: rule.is_or_rule || false,
-      visa_type: rule.visa_type || 'E',
+      visa_type: rule.visa_type || visaTypeCodes[0] || 'E',
       is_goal_action: rule.is_goal_action || false
     });
     setHasChanges(false);
@@ -79,18 +80,17 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
   return (
     <div className={`admin-rule-card ${hasChanges ? 'has-changes' : ''}`}>
       <div className="rule-card-main">
-        {!isNew && (
-          <div className="rule-move-buttons">
-            <button className="rule-move-btn" onClick={onMoveUp} disabled={index === 0}>↑</button>
-            <button className="rule-move-btn" onClick={onMoveDown} disabled={index === totalRules - 1}>↓</button>
-          </div>
-        )}
-
         <div className="rule-card-content">
           <div className="rule-card-header">
+            {!isNew && (
+              <>
+                <button className="rule-move-btn" onClick={onMoveUp} disabled={index === 0}>↑</button>
+                <button className="rule-move-btn" onClick={onMoveDown} disabled={index === totalRules - 1}>↓</button>
+              </>
+            )}
             <span className="rule-number">#{isNew ? 'NEW' : index + 1}</span>
             <select className="rule-visa-select" value={formData.visa_type} onChange={(e) => updateField('visa_type', e.target.value)}>
-              {VISA_TYPES.map(vt => (
+              {visaTypeCodes.map(vt => (
                 <option key={vt} value={vt}>{vt}</option>
               ))}
             </select>
@@ -106,6 +106,7 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
               />
               ゴール
             </label>
+            <button className="delete-btn" onClick={isNew ? onCancel : onDelete}>{isNew ? '取消' : '削除'}</button>
           </div>
 
           <div className="rule-card-body">
@@ -132,10 +133,6 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="rule-action-buttons">
-          <button className="delete-btn" onClick={isNew ? onCancel : onDelete}>{isNew ? '取消' : '削除'}</button>
         </div>
       </div>
 

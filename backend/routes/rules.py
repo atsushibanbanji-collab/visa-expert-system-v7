@@ -6,9 +6,10 @@ from fastapi import APIRouter, HTTPException
 
 from core import VISA_TYPE_ORDER
 from knowledge import (
-    get_all_rules, VISA_RULES, save_rules, reload_rules
+    get_all_rules, VISA_RULES, save_rules, reload_rules,
+    get_all_visa_types, add_visa_type, update_visa_type, delete_visa_type, reload_visa_types
 )
-from schemas import RuleRequest, DeleteRequest, ReorderRequest
+from schemas import RuleRequest, DeleteRequest, ReorderRequest, VisaTypeRequest
 from services.validation import check_rules_integrity
 from services.rule_helpers import (
     rules_to_dict_list, build_rules_data, request_to_dict
@@ -37,15 +38,34 @@ async def get_rules(visa_type: Optional[str] = None, sort: Optional[str] = "visa
 @router.get("/visa-types")
 async def get_visa_types():
     """利用可能なビザタイプを取得"""
-    return {
-        "visa_types": [
-            {"code": "E", "name": "Eビザ（投資家・貿易）", "description": "投資家や貿易業者向けのビザ"},
-            {"code": "L", "name": "Lビザ（企業内転勤）", "description": "グループ企業間の転勤者向けビザ"},
-            {"code": "B", "name": "Bビザ（商用）", "description": "短期商用目的のビザ"},
-            {"code": "H-1B", "name": "H-1Bビザ（専門職）", "description": "専門的職業従事者向けビザ"},
-            {"code": "J-1", "name": "J-1ビザ（研修）", "description": "研修・交流目的のビザ"},
-        ]
-    }
+    reload_visa_types()
+    return {"visa_types": get_all_visa_types()}
+
+
+@router.post("/visa-types")
+async def create_visa_type(visa_type: VisaTypeRequest):
+    """ビザタイプを追加"""
+    data = visa_type.model_dump()
+    if not add_visa_type(data):
+        raise HTTPException(status_code=400, detail="ビザタイプの追加に失敗しました（コードが重複している可能性があります）")
+    return {"status": "created", "code": visa_type.code}
+
+
+@router.put("/visa-types/{code}")
+async def update_visa_type_endpoint(code: str, visa_type: VisaTypeRequest):
+    """ビザタイプを更新"""
+    data = visa_type.model_dump()
+    if not update_visa_type(code, data):
+        raise HTTPException(status_code=404, detail="ビザタイプが見つかりません")
+    return {"status": "updated", "code": code}
+
+
+@router.delete("/visa-types/{code}")
+async def delete_visa_type_endpoint(code: str):
+    """ビザタイプを削除"""
+    if not delete_visa_type(code):
+        raise HTTPException(status_code=404, detail="ビザタイプが見つかりません")
+    return {"status": "deleted", "code": code}
 
 
 @router.get("/validation/check")

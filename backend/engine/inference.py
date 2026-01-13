@@ -4,7 +4,7 @@
 from typing import Dict, List, Optional, Set, Any
 
 from core import Rule, FactStatus, RuleStatus, VISA_TYPE_ORDER
-from knowledge import get_all_rules, get_goal_rules, get_derived_conditions
+from knowledge import get_all_rules, get_goal_rules, get_derived_conditions, get_visa_type_codes
 from .working_memory import WorkingMemory, RuleState
 from .evaluator import RuleEvaluator
 
@@ -45,7 +45,9 @@ class InferenceEngine:
 
     def start_consultation(self) -> Optional[str]:
         """診断を開始"""
-        self.reasoning_log.append("診断を開始します。全ビザタイプ（E、B、L、H-1B、J-1）を並行評価します。")
+        visa_codes = get_visa_type_codes()
+        visa_list = "、".join(visa_codes)
+        self.reasoning_log.append(f"診断を開始します。全ビザタイプ（{visa_list}）を並行評価します。")
         return self._get_next_question()
 
     def answer_question(self, condition: str, answer: str) -> Dict[str, Any]:

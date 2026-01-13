@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { API_BASE } from '../config';
-import { VISA_TYPES } from '../constants';
+import { useVisaTypes } from '../context/VisaTypeContext';
 import RuleCard from '../components/consultation/RuleCard';
 import DiagnosisResult from '../components/consultation/DiagnosisResult';
 
 function ConsultationPage({ onBack }) {
+  const { visaTypeCodes } = useVisaTypes();
   const [sessionId] = useState(() => `session_${Date.now()}`);
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [relatedVisaTypes, setRelatedVisaTypes] = useState([]);
@@ -171,7 +172,7 @@ function ConsultationPage({ onBack }) {
           <h2>推論過程</h2>
         </div>
         <div className="rules-container" ref={containerRef}>
-          {VISA_TYPES.map(visaType => {
+          {visaTypeCodes.map(visaType => {
             const visaRules = rulesStatus.filter(r => r.visa_type === visaType && r.status !== 'pending');
             if (visaRules.length === 0) return null;
             return (
