@@ -53,9 +53,7 @@ async def create_rule(rule: RuleRequest):
         insert_index = len(rules_data["rules"])
         rules_data["rules"].append(new_rule)
 
-    if not save_rules(rules_data):
-        raise HTTPException(status_code=500, detail="Failed to save rule")
-
+    save_rules(rules_data)
     return {"status": "created", "action": rule.action, "position": insert_index}
 
 
@@ -74,8 +72,7 @@ async def update_rule(rule: RuleRequest):
     rules_data = build_rules_data(RULES)
     rules_data["rules"][rule.index] = request_to_dict(rule)
 
-    if not save_rules(rules_data):
-        raise HTTPException(status_code=500, detail="Failed to save rule")
+    save_rules(rules_data)
     return {"status": "updated", "action": rule.action, "index": rule.index}
 
 
@@ -92,8 +89,7 @@ async def delete_rule(request: DeleteRequest):
     deleted_action = rules_data["rules"][request.index]["action"]
     del rules_data["rules"][request.index]
 
-    if not save_rules(rules_data):
-        raise HTTPException(status_code=500, detail="Failed to delete rule")
+    save_rules(rules_data)
     return {"status": "deleted", "index": request.index, "action": deleted_action}
 
 
@@ -109,8 +105,7 @@ async def reorder_rules(request: ReorderRequest):
             reordered.append(rules_map.pop(action))
     reordered.extend(rules_map.values())
 
-    if not save_rules(build_rules_data(reordered)):
-        raise HTTPException(status_code=500, detail="Failed to save rule order")
+    save_rules(build_rules_data(reordered))
     return {"status": "reordered", "count": len(reordered)}
 
 

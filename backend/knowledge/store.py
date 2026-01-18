@@ -52,9 +52,11 @@ def reload_rules() -> List[Rule]:
     return RULES
 
 
-def save_rules(rules_data: dict) -> bool:
-    """ルールをJSONファイルに保存"""
-    if save_rules_to_json(rules_data):
-        reload_rules()
-        return True
-    return False
+def save_rules(rules_data: dict) -> None:
+    """ルールをJSONファイルに保存
+
+    Raises:
+        例外が発生した場合はそのまま伝播
+    """
+    save_rules_to_json(rules_data)
+    reload_rules()

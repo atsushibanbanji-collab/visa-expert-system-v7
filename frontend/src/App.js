@@ -17,7 +17,7 @@ function App() {
             className={`header-button ${currentPage === 'home' ? 'active' : ''}`}
             onClick={() => setCurrentPage('home')}
           >
-            ホーム
+            診断
           </button>
           <button
             className={`header-button ${currentPage === 'admin' ? 'active' : ''}`}

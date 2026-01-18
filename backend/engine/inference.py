@@ -30,6 +30,7 @@ class InferenceEngine:
         self.rules = get_all_rules()
         self.rule_states: Dict[str, RuleState] = {}
         self.current_question: Optional[str] = None
+        self.current_goal: Optional[Rule] = None
         self.derived_conditions = get_derived_conditions()
         self.reasoning_log: List[str] = []
 
@@ -91,9 +92,10 @@ class InferenceEngine:
             question = self._find_next_question_for_rule(goal_rule)
             if question:
                 self.current_question = question
-                self.evaluator.mark_related_rules_evaluating(question)
+                self.current_goal = goal_rule
                 return question
 
+        self.current_goal = None
         return None
 
     def _find_next_question_for_rule(self, rule: Rule, visited: Set[str] = None) -> Optional[str]:
@@ -107,6 +109,10 @@ class InferenceEngine:
 
         if self.rule_states[rule.id].status in (RuleStatus.BLOCKED, RuleStatus.FIRED):
             return None
+
+        # このルールを評価中にマーク
+        if self.rule_states[rule.id].status == RuleStatus.PENDING:
+            self.rule_states[rule.id].status = RuleStatus.EVALUATING
 
         for cond in rule.conditions:
             val = self.evaluator.get_effective_value(cond)
@@ -359,10 +365,9 @@ class InferenceEngine:
 
                 self.evaluator.evaluate_all_rules()
                 self._propagate_inferences()
-                self.current_question = target_cond
 
-                for cond in asked_conditions:
-                    self.evaluator.mark_related_rules_evaluating(cond)
+                # 戻った位置から再度質問を取得（ルールのEVALUATINGマークも行われる）
+                self._get_next_question()
 
         return {
             "current_question": self.current_question,

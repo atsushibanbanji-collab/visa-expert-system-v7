@@ -25,7 +25,7 @@ function DiagnosisResult({ result, onGoBack, onRestart }) {
             {result.conditional_visas.map((visa, index) => (
               <li key={index} className="result-item conditional-visa">
                 <p className="conditional-description">
-                  以下の条件が満たされれば申請ができます:
+                  以下の条件が満たされれば
                 </p>
                 <p className="visa-name-conditional">{visa.visa}</p>
                 <ul className="unknown-conditions-list">

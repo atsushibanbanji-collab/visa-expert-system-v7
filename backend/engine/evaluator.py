@@ -1,7 +1,7 @@
 """
 ルール評価ロジック
 """
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional
 
 from core import Rule, FactStatus, RuleStatus
 from .working_memory import WorkingMemory, RuleState
@@ -124,10 +124,3 @@ class RuleEvaluator:
             )
             if all_answered:
                 state.status = RuleStatus.UNCERTAIN
-
-    def mark_related_rules_evaluating(self, condition: str):
-        """条件に関連するルールを評価中状態にする"""
-        for state in self.rule_states.values():
-            if condition in state.rule.conditions:
-                if state.status == RuleStatus.PENDING:
-                    state.status = RuleStatus.EVALUATING

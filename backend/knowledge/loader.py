@@ -3,57 +3,59 @@
 """
 import os
 import json
-import logging
 from typing import List
 
 from core import Rule, RuleType
 
-logger = logging.getLogger(__name__)
 
 # データファイルのパス
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 RULES_FILE = os.path.join(DATA_DIR, "rules.json")
 
 
+class RuleLoadError(Exception):
+    """ルールファイル読み込みエラー"""
+    pass
+
+
 def load_rules_from_json() -> List[Rule]:
-    """JSONファイルからルールを読み込む"""
+    """JSONファイルからルールを読み込む
+
+    Raises:
+        RuleLoadError: ルールファイルが存在しない、または読み込みに失敗した場合
+    """
     if not os.path.exists(RULES_FILE):
-        return _get_fallback_rules()
+        raise RuleLoadError(f"ルールファイルが見つかりません: {RULES_FILE}")
 
-    try:
-        with open(RULES_FILE, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+    with open(RULES_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
 
-        rules = []
-        for r in data.get("rules", []):
-            rule = Rule(
-                conditions=r["conditions"],
-                action=r["action"],
-                rule_type=RuleType(r.get("rule_type", "i")),
-                is_or_rule=r.get("is_or_rule", False),
-                is_goal_action=r.get("is_goal_action", False)
-            )
-            rules.append(rule)
-        return rules
-    except Exception as e:
-        logger.warning(f"Failed to load rules from JSON: {e}")
-        return _get_fallback_rules()
+    rules = []
+    for idx, r in enumerate(data.get("rules", [])):
+        if "conditions" not in r or "action" not in r:
+            raise RuleLoadError(f"ルール {idx+1} に必須フィールドがありません")
 
+        rule = Rule(
+            conditions=r["conditions"],
+            action=r["action"],
+            rule_type=RuleType(r.get("rule_type", "i")),
+            is_or_rule=r.get("is_or_rule", False),
+            is_goal_action=r.get("is_goal_action", False)
+        )
+        rules.append(rule)
 
-def save_rules_to_json(rules_data: dict) -> bool:
-    """ルールをJSONファイルに保存"""
-    try:
-        os.makedirs(DATA_DIR, exist_ok=True)
-        with open(RULES_FILE, 'w', encoding='utf-8') as f:
-            json.dump(rules_data, f, ensure_ascii=False, indent=2)
-        return True
-    except Exception as e:
-        logger.error(f"Error saving rules: {e}")
-        return False
+    if not rules:
+        raise RuleLoadError("ルールファイルにルールが定義されていません")
+
+    return rules
 
 
-def _get_fallback_rules() -> List[Rule]:
-    """フォールバック用の最小限ルール"""
-    # JSONファイルが読めない場合のエラー防止用
-    # 本番運用では rules.json が必須
-    return []
+def save_rules_to_json(rules_data: dict) -> None:
+    """ルールをJSONファイルに保存
+
+    Raises:
+        RuleLoadError: 保存に失敗した場合
+    """
+    os.makedirs(DATA_DIR, exist_ok=True)
+    with open(RULES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(rules_data, f, ensure_ascii=False, indent=2)

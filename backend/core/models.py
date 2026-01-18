@@ -18,11 +18,6 @@ class Rule:
     rule_type: RuleType        # ルールタイプ
     is_or_rule: bool = False   # OR条件かどうか
     is_goal_action: bool = False  # ゴールアクションかどうか
-    flag: str = None           # 発火状態フラグ
-
-    def __post_init__(self):
-        if self.flag is None:
-            self.flag = "pending"
 
     @property
     def id(self) -> str:
