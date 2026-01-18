@@ -27,7 +27,6 @@ class RuleRequest(BaseModel):
     conditions: List[str]
     action: str
     is_or_rule: bool = False
-    rule_type: str = "i"  # "i" for INITIAL, "m" for MIDDLE
     is_goal_action: bool = False  # ゴールアクションかどうか
     index: Optional[int] = None  # 編集時の対象インデックス（0始まり）
     insert_after: Optional[int] = None  # 挿入位置（0=先頭、N=N番目の後、None=末尾）
@@ -39,3 +38,7 @@ class DeleteRequest(BaseModel):
 
 class ReorderRequest(BaseModel):
     actions: List[str]
+
+
+class ImportApplyRequest(BaseModel):
+    rules: List[dict]

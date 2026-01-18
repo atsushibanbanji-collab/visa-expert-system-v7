@@ -51,7 +51,6 @@ function AdminRuleCard({ rule, index, isNew, totalRules, onSave, onCancel, onDel
     const saveData = {
       ...formData,
       conditions: cleanedConditions,
-      rule_type: 'i',
       is_goal_action: formData.is_goal_action
     };
     if (!isNew) {

@@ -8,7 +8,9 @@ function AdminPage() {
   const [message, setMessage] = useState(null);
   const [insertPosition, setInsertPosition] = useState(null);
   const [newRuleAtEnd, setNewRuleAtEnd] = useState(false);
+  const [importPreview, setImportPreview] = useState(null);
   const pageRef = React.useRef(null);
+  const fileInputRef = React.useRef(null);
 
   const scrollToTop = () => {
     if (pageRef.current) {
@@ -134,6 +136,68 @@ function AdminPage() {
     }
   };
 
+  const handleExport = () => {
+    window.location.href = `${API_BASE}/api/rules/export`;
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`${API_BASE}/api/rules/import`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+
+      if (data.status === 'error') {
+        setMessage({
+          type: 'error',
+          text: `インポートエラー:\n${data.errors.join('\n')}`
+        });
+      } else if (data.status === 'preview') {
+        setImportPreview(data.rules);
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'ファイルの読み込みに失敗しました' });
+    }
+
+    e.target.value = '';
+  };
+
+  const handleApplyImport = async () => {
+    if (!importPreview) return;
+
+    if (!window.confirm(`${importPreview.length}件のルールをインポートします。現在のルールは全て置き換えられます。よろしいですか？`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/api/rules/import/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rules: importPreview })
+      });
+      const data = await response.json();
+
+      if (data.status === 'applied') {
+        setMessage({ type: 'success', text: `${data.count}件のルールをインポートしました` });
+        setImportPreview(null);
+        fetchRules();
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'インポートの適用に失敗しました' });
+    }
+  };
+
   const moveRule = async (index, direction) => {
     const newIndex = index + direction;
     if (newIndex < 0 || newIndex >= rules.length) return;
@@ -169,6 +233,19 @@ function AdminPage() {
           <button className="admin-button secondary" onClick={handleValidate}>
             整合性チェック
           </button>
+          <button className="admin-button secondary" onClick={handleExport}>
+            CSVエクスポート
+          </button>
+          <button className="admin-button secondary" onClick={handleImportClick}>
+            CSVインポート
+          </button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept=".csv"
+            onChange={handleFileSelect}
+            style={{ display: 'none' }}
+          />
         </div>
       </div>
 
@@ -176,6 +253,32 @@ function AdminPage() {
         <div className={`admin-message ${message.type}`}>
           {message.text}
           <button onClick={() => setMessage(null)}>&times;</button>
+        </div>
+      )}
+
+      {importPreview && (
+        <div className="import-preview-overlay">
+          <div className="import-preview-modal">
+            <h3>インポートプレビュー（{importPreview.length}件）</h3>
+            <div className="import-preview-list">
+              {importPreview.map((rule, idx) => (
+                <div key={idx} className="import-preview-item">
+                  <span className="preview-number">#{idx + 1}</span>
+                  <span className="preview-operator">{rule.is_or_rule ? 'OR' : 'AND'}</span>
+                  <span className="preview-action">{rule.action}</span>
+                  {rule.is_goal_action && <span className="preview-goal">GOAL</span>}
+                </div>
+              ))}
+            </div>
+            <div className="import-preview-actions">
+              <button className="admin-button" onClick={handleApplyImport}>
+                インポート実行
+              </button>
+              <button className="admin-button secondary" onClick={() => setImportPreview(null)}>
+                キャンセル
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

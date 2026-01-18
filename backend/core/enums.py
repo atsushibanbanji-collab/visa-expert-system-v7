@@ -4,12 +4,6 @@
 from enum import Enum
 
 
-class RuleType(Enum):
-    """ルールタイプ"""
-    INITIAL = "i"   # 開始ルール（基本条件のみで構成）
-    MIDDLE = "m"    # 中間ルール（導出条件を含む）
-
-
 class FactStatus(Enum):
     """事実のステータス"""
     TRUE = "true"

@@ -8,7 +8,6 @@
       ],
       "action": "Eビザでの申請ができます",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": true
     },
     {
@@ -18,7 +17,6 @@
       ],
       "action": "会社がEビザの条件を満たします",
       "is_or_rule": true,
-      "rule_type": "m",
       "is_goal_action": false
     },
     {
@@ -30,7 +28,6 @@
       ],
       "action": "会社がEビザの投資の条件を満たします",
       "is_or_rule": true,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -41,7 +38,6 @@
       ],
       "action": "会社がEビザの貿易の条件を満たします",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -52,7 +48,6 @@
       ],
       "action": "申請者がEビザの条件を満たします",
       "is_or_rule": true,
-      "rule_type": "m",
       "is_goal_action": false
     },
     {
@@ -62,7 +57,6 @@
       ],
       "action": "申請者がEビザのマネージャー以上の条件を満たします",
       "is_or_rule": false,
-      "rule_type": "m",
       "is_goal_action": false
     },
     {
@@ -73,7 +67,6 @@
       ],
       "action": "米国拠点でEビザでマネージャー以上として認められるポジションに就きます",
       "is_or_rule": true,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -83,7 +76,6 @@
       ],
       "action": "マネージャー以上のポジションの業務を遂行する十分な能力があります",
       "is_or_rule": false,
-      "rule_type": "m",
       "is_goal_action": false
     },
     {
@@ -93,7 +85,6 @@
       ],
       "action": "マネジメント経験が2年以上あります",
       "is_or_rule": true,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -104,7 +95,6 @@
       ],
       "action": "申請者がEビザのスタッフの条件を満たします",
       "is_or_rule": true,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -114,7 +104,6 @@
       ],
       "action": "EビザTDY(short-term needs)の条件を満たします",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -125,7 +114,6 @@
       ],
       "action": "Blanket Lビザでの申請ができます",
       "is_or_rule": false,
-      "rule_type": "m",
       "is_goal_action": true
     },
     {
@@ -136,7 +124,6 @@
       ],
       "action": "会社がBlanket Lビザの条件を満たします",
       "is_or_rule": true,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -146,7 +133,6 @@
       ],
       "action": "申請者がBlanket Lビザの条件を満たします",
       "is_or_rule": false,
-      "rule_type": "m",
       "is_goal_action": false
     },
     {
@@ -156,7 +142,6 @@
       ],
       "action": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします",
       "is_or_rule": true,
-      "rule_type": "m",
       "is_goal_action": false
     },
     {
@@ -166,7 +151,6 @@
       ],
       "action": "Blanket Lビザのマネージャーの条件を満たします",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -176,7 +160,6 @@
       ],
       "action": "Blanket Lビザスタッフの条件を満たします",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -186,7 +169,6 @@
       ],
       "action": "Lビザ（Individual）での申請ができます",
       "is_or_rule": false,
-      "rule_type": "m",
       "is_goal_action": true
     },
     {
@@ -196,7 +178,6 @@
       ],
       "action": "申請者がLビザ（Individual）の条件を満たします",
       "is_or_rule": false,
-      "rule_type": "m",
       "is_goal_action": false
     },
     {
@@ -207,7 +188,6 @@
       ],
       "action": "Lビザ（Individual）のマネージャーの条件を満たします",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -217,7 +197,6 @@
       ],
       "action": "Lビザ（Individual）のスタッフの条件を満たします",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -227,7 +206,6 @@
       ],
       "action": "Lビザ（Individual）のマネージャーまたはスタッフの条件を満たします",
       "is_or_rule": true,
-      "rule_type": "m",
       "is_goal_action": false
     },
     {
@@ -238,7 +216,6 @@
       ],
       "action": "H-1Bビザでの申請ができます",
       "is_or_rule": true,
-      "rule_type": "i",
       "is_goal_action": true
     },
     {
@@ -248,7 +225,6 @@
       ],
       "action": "Bビザの申請ができます",
       "is_or_rule": true,
-      "rule_type": "m",
       "is_goal_action": true
     },
     {
@@ -259,7 +235,6 @@
       ],
       "action": "Bビザの申請条件を満たす（ESTAの認証は通る）",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -269,7 +244,6 @@
       ],
       "action": "Bビザの申請条件を満たす（ESTAの認証は通らない）",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": false
     },
     {
@@ -280,7 +254,6 @@
       ],
       "action": "契約書に基づくBビザの申請ができます",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": true
     },
     {
@@ -290,7 +263,6 @@
       ],
       "action": "B-1 in lieu of H-1Bビザの申請ができます",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": true
     },
     {
@@ -300,7 +272,6 @@
       ],
       "action": "研修目的のBビザの申請ができます",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": true
     },
     {
@@ -310,7 +281,6 @@
       ],
       "action": "B-1 in lieu of H3ビザの申請ができます",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": true
     },
     {
@@ -321,7 +291,6 @@
       ],
       "action": "J-1ビザの申請ができます",
       "is_or_rule": false,
-      "rule_type": "i",
       "is_goal_action": true
     }
   ]

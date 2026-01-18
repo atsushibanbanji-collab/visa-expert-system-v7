@@ -3,7 +3,6 @@
 """
 from typing import List
 from dataclasses import dataclass
-from .enums import RuleType
 
 
 @dataclass
@@ -15,7 +14,6 @@ class Rule:
     """
     conditions: List[str]      # 条件部
     action: str                # 結論部（一意な識別子）
-    rule_type: RuleType        # ルールタイプ
     is_or_rule: bool = False   # OR条件かどうか
     is_goal_action: bool = False  # ゴールアクションかどうか
 

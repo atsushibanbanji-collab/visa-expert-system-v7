@@ -5,7 +5,7 @@ import os
 import json
 from typing import List
 
-from core import Rule, RuleType
+from core import Rule
 
 
 # データファイルのパス
@@ -38,7 +38,6 @@ def load_rules_from_json() -> List[Rule]:
         rule = Rule(
             conditions=r["conditions"],
             action=r["action"],
-            rule_type=RuleType(r.get("rule_type", "i")),
             is_or_rule=r.get("is_or_rule", False),
             is_goal_action=r.get("is_goal_action", False)
         )
